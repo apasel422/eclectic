@@ -1,3 +1,8 @@
+#![feature(collections)]
+
+#[macro_use] mod macros;
+mod std_impls;
+
 pub trait Collection {
     /// Checks if the collection is empty.
     fn is_empty(&self) -> bool { self.len() == 0 }
