@@ -5,3 +5,11 @@ version = "0.0.1"
 authors = ["Andrew Paseltiner <apaseltiner@gmail.com>"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/apasel422/eclectic"
+
+[features]
+
+default = ["collect"]
+
+[dependencies.collect]
+
+optional = true

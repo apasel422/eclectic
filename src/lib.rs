@@ -1,6 +1,7 @@
 #![feature(collections)]
 
 #[macro_use] mod macros;
+#[cfg(feature = "collect")] mod collect_impls;
 mod std_impls;
 
 pub trait Collection {
