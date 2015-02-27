@@ -31,6 +31,15 @@ macro_rules! mut_map_lookup_methods {
     }
 }
 
+macro_rules! occupied_entry_methods {
+    ($v:ty) => {
+        fn get(&self) -> &$v { self.get() }
+        fn get_mut(&mut self) -> &mut $v { self.get_mut() }
+        fn insert(&mut self, value: $v) -> $v { self.insert(value) }
+        fn remove(self) -> $v { self.remove() }
+    }
+}
+
 macro_rules! set_lookup_methods {
     ($q:ty) => {
         fn contains(&self, item: &$q) -> bool { self.contains(item) }

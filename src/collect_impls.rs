@@ -1,11 +1,13 @@
 extern crate collect;
 
 use self::collect::compare::Compare;
-use self::collect::{TreeMap, TreeSet, TrieMap, TrieSet};
+use self::collect::{TreeMap, TreeSet, TrieSet};
 use self::collect::enum_set::{CLike, EnumSet};
 use self::collect::proto::linear_map::LinearMap;
+use self::collect::trie_map::{self, TrieMap};
 use super::{Collection, MutCollection};
 use super::{Map, MapLookup, MutMap, MutMapLookup};
+use super::{Entry, EntryMap, OccupiedEntry, VacantEntry};
 use super::{Set, SetLookup, MutSet, MutSetLookup};
 
 impl<K, V> Collection for LinearMap<K, V> where K: Eq { collection_methods!{} }
@@ -30,6 +32,31 @@ impl<V> Map for TrieMap<V> { type Key = usize; type Value = V; }
 impl<V> MapLookup<usize> for TrieMap<V> { map_lookup_methods!{usize, V} }
 impl<V> MutMap for TrieMap<V> { mut_map_methods!{usize, V} }
 impl<V> MutMapLookup<usize> for TrieMap<V> { mut_map_lookup_methods!{usize, V} }
+
+impl<'a, V: 'a> EntryMap<'a> for TrieMap<V> {
+    type Occupied = trie_map::OccupiedEntry<'a, V>;
+    type Vacant = trie_map::VacantEntry<'a, V>;
+
+    fn entry(&'a mut self, key: usize) ->
+        Entry<trie_map::OccupiedEntry<'a, V>, trie_map::VacantEntry<'a, V>> {
+
+        match self.entry(key) { // FIXME: all `Entry` enums should be changed to this crate's
+            trie_map::Entry::Occupied(e) => Entry::Occupied(e),
+            trie_map::Entry::Vacant(e) => Entry::Vacant(e),
+        }
+    }
+}
+
+impl<'a, V: 'a> OccupiedEntry<'a> for trie_map::OccupiedEntry<'a, V> {
+    type Value = V;
+    occupied_entry_methods!{V}
+    fn into_mut(self) -> &'a mut V { self.into_mut() }
+}
+
+impl<'a, V: 'a> VacantEntry<'a> for trie_map::VacantEntry<'a, V> {
+    type Value = V;
+    fn insert(self, value: V) -> &'a mut V { self.insert(value) }
+}
 
 impl<T> Collection for EnumSet<T> where T: CLike { collection_methods!{} }
 impl<T> MutCollection for EnumSet<T> where T: CLike { mut_collection_methods!{} }

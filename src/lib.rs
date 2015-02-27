@@ -1,4 +1,5 @@
 #![feature(collections)]
+#![feature(std_misc)]
 
 #[macro_use] mod macros;
 #[cfg(feature = "collect")] mod collect_impls;
@@ -45,6 +46,57 @@ pub trait MutMapLookup<Q: ?Sized>: MutMap + MapLookup<Q> {
     /// Removes the given key from the map, returning the value associated with it, or `None` if
     /// the map did not contain the key.
     fn remove(&mut self, key: &Q) -> Option<Self::Value>;
+}
+
+pub trait EntryMap<'a>: MutMap {
+    type Occupied: OccupiedEntry<'a, Value=Self::Value>;
+    type Vacant: VacantEntry<'a, Value=Self::Value>;
+
+    /// Returns the given key's corresponding entry in the map for in-place manipulation.
+    fn entry(&'a mut self, key: Self::Key) -> Entry<Self::Occupied, Self::Vacant>;
+}
+
+pub enum Entry<O, V> {
+    Occupied(O),
+    Vacant(V),
+}
+
+impl<'a, O, V> Entry<O, V >where O: OccupiedEntry<'a>, V: VacantEntry<'a, Value=O::Value> {
+    /// Returns a mutable reference to the entry's value if it is occupied, or the vacant entry if
+    /// it is vacant.
+    pub fn get(self) -> Result<&'a mut O::Value, V> {
+        match self {
+            Entry::Occupied(e) => Ok(e.into_mut()),
+            Entry::Vacant(e) => Err(e),
+        }
+    }
+}
+
+pub trait OccupiedEntry<'a> {
+    type Value: 'a;
+
+    /// Returns a reference to the entry's value.
+    fn get(&self) -> &Self::Value;
+
+    /// Returns a mutable reference to the entry's value.
+    fn get_mut(&mut self) -> &mut Self::Value;
+
+    /// Sets the entry's value to the given one, returning the old value.
+    fn insert(&mut self, value: Self::Value) -> Self::Value;
+
+    /// Returns a mutable reference to the entry's value with the lifetime of the map.
+    fn into_mut(self) -> &'a mut Self::Value;
+
+    /// Removes the entry, returning its value.
+    fn remove(self) -> Self::Value;
+}
+
+pub trait VacantEntry<'a> {
+    type Value: 'a;
+
+    /// Sets the entry's value to the given one, returning a mutable reference to the value with
+    /// the lifetime of the map.
+    fn insert(self, value: Self::Value) -> &'a mut Self::Value;
 }
 
 pub trait Set: Collection where Self: SetLookup<Self::Item> {
