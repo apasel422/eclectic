@@ -13,7 +13,7 @@ impl<K, V> Collection for BTreeMap<K, V> where K: Ord { collection_methods!{} }
 impl<K, V> MutCollection for BTreeMap<K, V> where K: Ord { mut_collection_methods!{} }
 impl<K, V> Map for BTreeMap<K, V> where K: Ord { type Key = K; type Value = V; }
 impl<K, V, Q: ?Sized> MapLookup<Q> for BTreeMap<K, V>
-    where K: Ord + Borrow<Q>, Q: Ord { map_lookup_methods!{Q, V} }
+    where K: Ord + Borrow<Q>, Q: Ord { type MapValue = V; map_lookup_methods!{Q, V} }
 impl<K, V> MutMap for BTreeMap<K, V> where K: Ord { mut_map_methods!{K, V} }
 impl<K, V, Q: ?Sized> MutMapLookup<Q> for BTreeMap<K, V>
     where K: Ord + Borrow<Q>, Q: Ord { mut_map_lookup_methods!{Q, V} }
@@ -47,7 +47,7 @@ impl<K, V> Collection for HashMap<K, V> where K: Eq + Hash { collection_methods!
 impl<K, V> MutCollection for HashMap<K, V> where K: Eq + Hash { mut_collection_methods!{} }
 impl<K, V> Map for HashMap<K, V> where K: Eq + Hash { type Key = K; type Value = V; }
 impl<K, V, Q: ?Sized> MapLookup<Q> for HashMap<K, V>
-    where K: Eq + Hash + Borrow<Q>, Q: Eq + Hash { map_lookup_methods!{Q, V} }
+    where K: Eq + Hash + Borrow<Q>, Q: Eq + Hash { type MapValue = V; map_lookup_methods!{Q, V} }
 impl<K, V> MutMap for HashMap<K, V> where K: Eq + Hash { mut_map_methods!{K, V} }
 impl<K, V, Q: ?Sized> MutMapLookup<Q> for HashMap<K, V>
     where K: Eq + Hash + Borrow<Q>, Q: Eq + Hash { mut_map_lookup_methods!{Q, V} }
@@ -80,7 +80,7 @@ impl<'a, K, V: 'a> VacantEntry<'a> for hash_map::VacantEntry<'a, K, V> where K: 
 impl<V> Collection for VecMap<V> { collection_methods!{} }
 impl<V> MutCollection for VecMap<V> { mut_collection_methods!{} }
 impl<V> Map for VecMap<V> { type Key = usize; type Value = V; }
-impl<V> MapLookup<usize> for VecMap<V> { map_lookup_methods!{usize, V} }
+impl<V> MapLookup<usize> for VecMap<V> { type MapValue = V; map_lookup_methods!{usize, V} }
 impl<V> MutMap for VecMap<V> { mut_map_methods!{usize, V} }
 impl<V> MutMapLookup<usize> for VecMap<V> { mut_map_lookup_methods!{usize, V} }
 
