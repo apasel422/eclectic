@@ -2,7 +2,7 @@
 #![feature(std_misc)]
 
 #[macro_use] mod macros;
-#[cfg(feature = "collect")] mod collect_impls;
+#[cfg(feature = "collect_impls")] mod collect_impls;
 mod std_impls;
 
 pub trait Collection {

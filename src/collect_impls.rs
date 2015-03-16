@@ -1,6 +1,7 @@
+extern crate compare;
 extern crate collect;
 
-use self::collect::compare::Compare;
+use self::compare::Compare;
 use self::collect::{TreeMap, TreeSet, TrieSet};
 use self::collect::enum_set::{CLike, EnumSet};
 use self::collect::proto::linear_map::LinearMap;
