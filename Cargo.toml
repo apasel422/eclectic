@@ -8,7 +8,7 @@ repository = "https://github.com/apasel422/eclectic"
 
 [features]
 
-default = ["collect_impls"]
+default = ["collect_impls", "trie"]
 collect_impls = ["collect", "compare"]
 
 [dependencies.collect]
@@ -16,5 +16,9 @@ collect_impls = ["collect", "compare"]
 optional = true
 
 [dependencies.compare]
+
+optional = true
+
+[dependencies.trie]
 
 optional = true

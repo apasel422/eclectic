@@ -4,6 +4,7 @@
 #[macro_use] mod macros;
 #[cfg(feature = "collect_impls")] mod collect_impls;
 mod std_impls;
+#[cfg(feature = "trie")] mod trie_impls;
 
 pub trait Collection {
     /// Removes all items from the collection.
