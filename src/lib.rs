@@ -109,6 +109,6 @@ pub trait SetLookup<Q: ?Sized> {
     /// Checks if the set contains the given item.
     fn contains(&self, item: &Q) -> bool;
 
-    /// Removes the given item from the map, returning `true` if the set contained the item.
+    /// Removes the given item from the set, returning `true` if the set contained the item.
     fn remove(&mut self, item: &Q) -> bool;
 }
