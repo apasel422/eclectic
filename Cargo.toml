@@ -4,7 +4,11 @@ name = "eclectic"
 version = "0.0.1"
 authors = ["Andrew Paseltiner <apaseltiner@gmail.com>"]
 license = "MIT/Apache-2.0"
+homepage = "https://github.com/apasel422/eclectic"
 repository = "https://github.com/apasel422/eclectic"
+documentation = "https://apasel422.github.io/eclectic/eclectic"
+keywords = ["collecton", "map", "set", "data-structure"]
+description = "Experimental collection traits."
 
 [features]
 
