@@ -6,6 +6,9 @@
 mod std_impls;
 
 pub trait Collection {
+    /// Removes all items from the collection.
+    fn clear(&mut self);
+
     /// Checks if the collection is empty.
     fn is_empty(&self) -> bool { self.len() == 0 }
 
@@ -13,14 +16,15 @@ pub trait Collection {
     fn len(&self) -> usize;
 }
 
-pub trait MutCollection: Collection {
-    /// Removes all items from the collection.
-    fn clear(&mut self);
-}
-
 pub trait Map: Collection + MapLookup<<Self as Map>::Key, MapValue=<Self as Map>::Value> {
+    /// The map's key type.
     type Key;
+    /// The map's value type.
     type Value;
+
+    /// Inserts the given key and value into the map, returning the previous value associated with
+    /// the key, or `None` if the map did not already contain the key.
+    fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value>;
 }
 
 pub trait MapLookup<Q: ?Sized> {
@@ -32,15 +36,7 @@ pub trait MapLookup<Q: ?Sized> {
     /// Returns a reference to the value associated with the given key in the map, or `None` if
     /// the map does not contain the key.
     fn get(&self, key: &Q) -> Option<&Self::MapValue>;
-}
 
-pub trait MutMap: MutCollection + Map + MutMapLookup<<Self as Map>::Key> {
-    /// Inserts the given key and value into the map, returning the previous value associated with
-    /// the key, or `None` if the map did not already contain the key.
-    fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value>;
-}
-
-pub trait MutMapLookup<Q: ?Sized>: MapLookup<Q> {
     /// Returns a mutable reference to the value associated with the given key in the map, or
     /// `None` if the map does not contain the key.
     fn get_mut(&mut self, key: &Q) -> Option<&mut Self::MapValue>;
@@ -50,7 +46,7 @@ pub trait MutMapLookup<Q: ?Sized>: MapLookup<Q> {
     fn remove(&mut self, key: &Q) -> Option<Self::MapValue>;
 }
 
-pub trait EntryMap<'a>: MutMap {
+pub trait EntryMap<'a>: Map {
     type Occupied: OccupiedEntry<'a, Value=Self::Value>;
     type Vacant: VacantEntry<'a, Value=Self::Value>;
 
@@ -103,20 +99,16 @@ pub trait VacantEntry<'a> {
 
 pub trait Set: Collection + SetLookup<<Self as Set>::Item> {
     type Item;
-}
 
-pub trait SetLookup<Q: ?Sized> {
-    /// Checks if the set contains the given item.
-    fn contains(&self, item: &Q) -> bool;
-}
-
-pub trait MutSet: MutCollection + Set + MutSetLookup<<Self as Set>::Item> {
     /// Inserts the given item into the set, returning `true` if the set did not already contain
     /// the item.
     fn insert(&mut self, item: Self::Item) -> bool;
 }
 
-pub trait MutSetLookup<Q: ?Sized>: SetLookup<Q> {
+pub trait SetLookup<Q: ?Sized> {
+    /// Checks if the set contains the given item.
+    fn contains(&self, item: &Q) -> bool;
+
     /// Removes the given item from the map, returning `true` if the set contained the item.
     fn remove(&mut self, item: &Q) -> bool;
 }
