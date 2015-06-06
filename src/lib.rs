@@ -3,6 +3,7 @@
 #[macro_use] mod macros;
 mod std_impls;
 
+/// A collection.
 pub trait Collection {
     /// Removes all items from the collection.
     fn clear(&mut self);
@@ -14,6 +15,7 @@ pub trait Collection {
     fn len(&self) -> usize;
 }
 
+/// A map.
 pub trait Map: Collection + MapLookup<<Self as Map>::Key, MapValue=<Self as Map>::Value> {
     /// The map's key type.
     type Key;
@@ -25,6 +27,7 @@ pub trait Map: Collection + MapLookup<<Self as Map>::Key, MapValue=<Self as Map>
     fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value>;
 }
 
+/// A map that supports alternate key lookups.
 pub trait MapLookup<Q: ?Sized> {
     type MapValue;
 
@@ -44,16 +47,23 @@ pub trait MapLookup<Q: ?Sized> {
     fn remove(&mut self, key: &Q) -> Option<Self::MapValue>;
 }
 
+/// A map that supports the entry API.
 pub trait EntryMap<'a>: Map {
+    /// The occupied entry type.
     type Occupied: OccupiedEntry<'a, Value=Self::Value>;
+
+    /// The vacant entry type.
     type Vacant: VacantEntry<'a, Value=Self::Value>;
 
     /// Returns the given key's corresponding entry in the map for in-place manipulation.
     fn entry(&'a mut self, key: Self::Key) -> Entry<Self::Occupied, Self::Vacant>;
 }
 
+/// A map entry.
 pub enum Entry<O, V> {
+    /// An occupied entry.
     Occupied(O),
+    /// A vacant entry.
     Vacant(V),
 }
 
@@ -86,7 +96,9 @@ impl<'a, O, V> Entry<O, V> where O: OccupiedEntry<'a>, V: VacantEntry<'a, Value=
     }
 }
 
+/// An occupied map entry.
 pub trait OccupiedEntry<'a> {
+    /// The entry's value type.
     type Value: 'a;
 
     /// Returns a reference to the entry's value.
@@ -105,7 +117,9 @@ pub trait OccupiedEntry<'a> {
     fn remove(self) -> Self::Value;
 }
 
+/// A vacant map entry.
 pub trait VacantEntry<'a> {
+    /// The entry's value type.
     type Value: 'a;
 
     /// Sets the entry's value to the given one, returning a mutable reference to the value with
@@ -113,7 +127,9 @@ pub trait VacantEntry<'a> {
     fn insert(self, value: Self::Value) -> &'a mut Self::Value;
 }
 
+/// A set.
 pub trait Set: Collection + SetLookup<<Self as Set>::Item> {
+    /// The set's item type.
     type Item;
 
     /// Inserts the given item into the set, returning `true` if the set did not already contain
@@ -121,6 +137,7 @@ pub trait Set: Collection + SetLookup<<Self as Set>::Item> {
     fn insert(&mut self, item: Self::Item) -> bool;
 }
 
+/// A set that supports alternate item lookups.
 pub trait SetLookup<Q: ?Sized> {
     /// Checks if the set contains the given item.
     fn contains(&self, item: &Q) -> bool;
