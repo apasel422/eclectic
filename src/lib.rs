@@ -66,6 +66,24 @@ impl<'a, O, V> Entry<O, V> where O: OccupiedEntry<'a>, V: VacantEntry<'a, Value=
             Entry::Vacant(e) => Err(e),
         }
     }
+
+    /// Ensures that a value is in the entry by inserting the default if it is empty, and returns a
+    /// mutable reference to the value.
+    pub fn or_insert(self, default: O::Value) -> &'a mut O::Value {
+        match self {
+            Entry::Occupied(e) => e.into_mut(),
+            Entry::Vacant(e) => e.insert(default),
+        }
+    }
+
+    /// Ensures that a value is in the entry by inserting the result of the default function if it
+    /// is empty, and returns a mutable reference to the value.
+    pub fn or_insert_with<F>(self, default: F) -> &'a mut O::Value where F: FnOnce() -> O::Value {
+        match self {
+            Entry::Occupied(e) => e.into_mut(),
+            Entry::Vacant(e) => e.insert(default()),
+        }
+    }
 }
 
 pub trait OccupiedEntry<'a> {
