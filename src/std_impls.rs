@@ -9,6 +9,8 @@ use super::{Map, MapLookup};
 use super::{Entry, EntryMap, OccupiedEntry, VacantEntry};
 use super::{Set, SetLookup};
 
+impl<T> Collection for Vec<T> { collection_methods!{} }
+
 impl<K, V> Collection for BTreeMap<K, V> where K: Ord { collection_methods!{} }
 impl<K, V> Map for BTreeMap<K, V> where K: Ord { type Key = K; type Value = V; map_methods!{K, V} }
 impl<K, V, Q: ?Sized> MapLookup<Q> for BTreeMap<K, V>
