@@ -1,6 +1,9 @@
 language: rust
+rust: nightly
 sudo: false
 script:
+    - cargo build --features nightly
+    - cargo test --features nightly
     - cargo build
     - cargo test
     - cargo doc --no-deps

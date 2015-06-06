@@ -1,6 +1,7 @@
-#![feature(collections)]
+#![cfg_attr(feature = "nightly", feature(collections))]
 
 #[macro_use] mod macros;
+#[cfg(feature = "nightly")] mod nightly_impls;
 mod std_impls;
 
 /// A collection.
