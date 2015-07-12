@@ -13,36 +13,41 @@ pub trait Collection {
     fn len(&self) -> usize;
 }
 
-/// A map.
-pub trait Map: Collection + MapLookup<<Self as Map>::Key, MapValue=<Self as Map>::Value> {
+/// A trait that declares a map's key and value types.
+///
+/// It is unusual to bound types by this trait directly. Consider using [`Map`](trait.Map.html)
+/// instead.
+pub trait BaseMap: Collection {
     /// The map's key type.
     type Key;
+
     /// The map's value type.
     type Value;
+}
 
+/// A map.
+pub trait Map: MapLookup<<Self as BaseMap>::Key> {
     /// Inserts the given key and value into the map, returning the previous value associated with
     /// the key, or `None` if the map did not already contain the key.
     fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value>;
 }
 
 /// A map that supports alternate key lookups.
-pub trait MapLookup<Q: ?Sized> {
-    type MapValue;
-
+pub trait MapLookup<Q: ?Sized>: BaseMap {
     /// Checks if the map contains the given key.
     fn contains_key(&self, key: &Q) -> bool { self.get(key).is_some() }
 
     /// Returns a reference to the value associated with the given key in the map, or `None` if
     /// the map does not contain the key.
-    fn get(&self, key: &Q) -> Option<&Self::MapValue>;
+    fn get(&self, key: &Q) -> Option<&Self::Value>;
 
     /// Returns a mutable reference to the value associated with the given key in the map, or
     /// `None` if the map does not contain the key.
-    fn get_mut(&mut self, key: &Q) -> Option<&mut Self::MapValue>;
+    fn get_mut(&mut self, key: &Q) -> Option<&mut Self::Value>;
 
     /// Removes the given key from the map, returning the value associated with it, or `None` if
     /// the map did not contain the key.
-    fn remove(&mut self, key: &Q) -> Option<Self::MapValue>;
+    fn remove(&mut self, key: &Q) -> Option<Self::Value>;
 }
 
 /// A map that supports the entry API.
@@ -125,18 +130,24 @@ pub trait VacantEntry<'a> {
     fn insert(self, value: Self::Value) -> &'a mut Self::Value;
 }
 
-/// A set.
-pub trait Set: Collection + SetLookup<<Self as Set>::Item> {
+/// A trait that declares a set's item type.
+///
+/// It is unusual to bound types by this trait directly. Consider using [`Set`](trait.Set.html)
+/// instead.
+pub trait BaseSet: Collection {
     /// The set's item type.
     type Item;
+}
 
+/// A set.
+pub trait Set: SetLookup<<Self as BaseSet>::Item> {
     /// Inserts the given item into the set, returning `true` if the set did not already contain
     /// the item.
     fn insert(&mut self, item: Self::Item) -> bool;
 }
 
 /// A set that supports alternate item lookups.
-pub trait SetLookup<Q: ?Sized> {
+pub trait SetLookup<Q: ?Sized>: BaseSet {
     /// Checks if the set contains the given item.
     fn contains(&self, item: &Q) -> bool;
 
