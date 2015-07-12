@@ -4,6 +4,7 @@
 
 #[macro_use] mod macros;
 mod std_impls;
+#[cfg(feature = "vec_map")] mod vec_map_impls;
 
 /// A collection.
 pub trait Collection {
