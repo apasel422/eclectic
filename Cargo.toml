@@ -1,7 +1,6 @@
 [package]
-
 name = "eclectic"
-version = "0.0.3"
+version = "0.1.0"
 authors = ["Andrew Paseltiner <apaseltiner@gmail.com>"]
 license = "MIT/Apache-2.0"
 homepage = "https://github.com/apasel422/eclectic"
