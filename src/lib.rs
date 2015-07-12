@@ -75,15 +75,6 @@ where
     O: OccupiedEntry<'a>,
     V: VacantEntry<'a, Key = O::Key, Value=O::Value>
 {
-    /// Returns a mutable reference to the entry's value if it is occupied, or the vacant entry if
-    /// it is vacant.
-    pub fn get(self) -> Result<&'a mut O::Value, V> {
-        match self {
-            Entry::Occupied(e) => Ok(e.into_mut()),
-            Entry::Vacant(e) => Err(e),
-        }
-    }
-
     /// Ensures that a value is in the entry by inserting the default if it is empty, and returns a
     /// mutable reference to the value.
     pub fn or_insert(self, default: O::Value) -> &'a mut O::Value {
