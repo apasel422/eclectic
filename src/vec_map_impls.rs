@@ -5,8 +5,8 @@ use super::Entry;
 
 impl<V> super::Collection for VecMap<V> { collection_methods!{} }
 impl<V> super::BaseMap for VecMap<V> { type Key = usize; type Value = V; }
-impl<V> super::Map for VecMap<V> { map_methods!{usize, V} }
-impl<V> super::MapLookup<usize> for VecMap<V> { map_lookup_methods!{usize, V} }
+impl<V> super::Map for VecMap<V> { map_methods!{} }
+impl<V> super::MapLookup<usize> for VecMap<V> { map_lookup_methods!{usize} }
 
 impl<'a, V: 'a> super::EntryMap<'a> for VecMap<V> {
     type Occupied = vec_map::OccupiedEntry<'a, V>;
@@ -23,7 +23,7 @@ impl<'a, V: 'a> super::EntryMap<'a> for VecMap<V> {
 impl<'a, V: 'a> super::OccupiedEntry<'a> for vec_map::OccupiedEntry<'a, V> {
     type Key = usize;
     type Value = V;
-    occupied_entry_methods!{V}
+    occupied_entry_methods!{}
     fn into_mut(self) -> &'a mut V { self.into_mut() }
 }
 

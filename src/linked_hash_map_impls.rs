@@ -20,9 +20,9 @@ where
     S: HashState,
     Q: Eq + Hash,
 {
-    map_lookup_methods!{Q, V}
+    map_lookup_methods!{Q}
 }
 
 impl<K, V, S> super::Map for LinkedHashMap<K, V, S> where K: Eq + Hash, S: HashState {
-    map_methods!{K, V}
+    map_methods!{}
 }

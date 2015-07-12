@@ -14,11 +14,11 @@ impl<K, V> super::BaseMap for LinearMap<K, V> where K: Eq {
 }
 
 impl<K, V, Q: ?Sized> super::MapLookup<Q> for LinearMap<K, V> where K: Eq + Borrow<Q>, Q: Eq {
-    map_lookup_methods!{Q, V}
+    map_lookup_methods!{Q}
 }
 
 impl<K, V> super::Map for LinearMap<K, V> where K: Eq {
-    map_methods!{K, V}
+    map_methods!{}
 }
 
 impl<'a, K: 'a, V: 'a> super::EntryMap<'a> for LinearMap<K, V> where K: Eq {
@@ -36,7 +36,7 @@ impl<'a, K: 'a, V: 'a> super::EntryMap<'a> for LinearMap<K, V> where K: Eq {
 impl<'a, K: 'a, V: 'a> super::OccupiedEntry<'a> for linear_map::OccupiedEntry<'a, K, V> {
     type Key = K;
     type Value = V;
-    occupied_entry_methods!{V}
+    occupied_entry_methods!{}
     fn into_mut(self) -> &'a mut V { self.into_mut() }
 }
 

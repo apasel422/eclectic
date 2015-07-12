@@ -7,26 +7,28 @@ macro_rules! collection_methods {
 }
 
 macro_rules! map_lookup_methods {
-    ($q:ty, $v:ty) => {
+    ($q:ty) => {
         fn contains_key(&self, key: &$q) -> bool { self.contains_key(key) }
-        fn get(&self, key: &$q) -> Option<&$v> { self.get(key) }
-        fn get_mut(&mut self, key: &$q) -> Option<&mut $v> { self.get_mut(key) }
-        fn remove(&mut self, key: &$q) -> Option<$v> { self.remove(key) }
+        fn get(&self, key: &$q) -> Option<&Self::Value> { self.get(key) }
+        fn get_mut(&mut self, key: &$q) -> Option<&mut Self::Value> { self.get_mut(key) }
+        fn remove(&mut self, key: &$q) -> Option<Self::Value> { self.remove(key) }
     }
 }
 
 macro_rules! map_methods {
-    ($k:ty, $v:ty) => {
-        fn insert(&mut self, key: $k, value: $v) -> Option<$v> { self.insert(key, value) }
+    () => {
+        fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value> {
+            self.insert(key, value)
+        }
     }
 }
 
 macro_rules! occupied_entry_methods {
-    ($v:ty) => {
-        fn get(&self) -> &$v { self.get() }
-        fn get_mut(&mut self) -> &mut $v { self.get_mut() }
-        fn insert(&mut self, value: $v) -> $v { self.insert(value) }
-        fn remove(self) -> $v { self.remove() }
+    () => {
+        fn get(&self) -> &Self::Value { self.get() }
+        fn get_mut(&mut self) -> &mut Self::Value { self.get_mut() }
+        fn insert(&mut self, value: Self::Value) -> Self::Value { self.insert(value) }
+        fn remove(self) -> Self::Value { self.remove() }
     }
 }
 
@@ -38,7 +40,7 @@ macro_rules! set_lookup_methods {
 }
 
 macro_rules! set_methods {
-    ($t:ty) => {
-        fn insert(&mut self, item: $t) -> bool { self.insert(item) }
+    () => {
+        fn insert(&mut self, item: Self::Item) -> bool { self.insert(item) }
     }
 }
