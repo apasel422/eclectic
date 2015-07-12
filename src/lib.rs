@@ -3,7 +3,6 @@
 #![forbid(missing_docs)]
 #![cfg_attr(feature = "linked-hash-map", feature(hashmap_hasher))]
 
-#[macro_use] mod macros;
 mod std_impls;
 #[cfg(feature = "linked-hash-map")] mod linked_hash_map_impls;
 #[cfg(feature = "linear-map")] mod linear_map_impls;

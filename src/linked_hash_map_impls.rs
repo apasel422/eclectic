@@ -6,7 +6,9 @@ use std::collections::hash_state::HashState;
 use std::hash::Hash;
 
 impl<K, V, S> super::Collection for LinkedHashMap<K, V, S> where K: Eq + Hash, S: HashState {
-    collection_methods!{}
+    fn clear(&mut self) { self.clear(); }
+    fn is_empty(&self) -> bool { self.is_empty() }
+    fn len(&self) -> usize { self.len() }
 }
 
 impl<K, V, S> super::BaseMap for LinkedHashMap<K, V, S> where K: Eq + Hash, S: HashState {
@@ -20,9 +22,12 @@ where
     S: HashState,
     Q: Eq + Hash,
 {
-    map_lookup_methods!{Q}
+    fn contains_key(&self, key: &Q) -> bool { self.contains_key(key) }
+    fn get(&self, key: &Q) -> Option<&V> { self.get(key) }
+    fn get_mut(&mut self, key: &Q) -> Option<&mut V> { self.get_mut(key) }
+    fn remove(&mut self, key: &Q) -> Option<V> { self.remove(key) }
 }
 
 impl<K, V, S> super::Map for LinkedHashMap<K, V, S> where K: Eq + Hash, S: HashState {
-    map_methods!{}
+    fn insert(&mut self, key: K, value: V) -> Option<V> { self.insert(key, value) }
 }
