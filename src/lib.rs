@@ -1,15 +1,25 @@
+//! Collection traits for generic programming.
+
+#![forbid(missing_docs)]
+
 #[macro_use] mod macros;
 mod std_impls;
 
 /// A collection.
 pub trait Collection {
     /// Removes all items from the collection.
+    ///
+    /// After this method returns, `self.len() == 0`.
     fn clear(&mut self);
 
     /// Checks if the collection is empty.
+    ///
+    /// This method returns `true` iff `self.len() == 0`.
     fn is_empty(&self) -> bool { self.len() == 0 }
 
     /// Returns the number of items in the collection.
+    ///
+    /// This method returns `0` iff `self.is_empty()`.
     fn len(&self) -> usize;
 }
 
@@ -27,42 +37,83 @@ pub trait BaseMap: Collection {
 
 /// A map.
 pub trait Map: MapLookup<<Self as BaseMap>::Key> {
-    /// Inserts the given key and value into the map, returning the previous value associated with
-    /// the key, or `None` if the map did not already contain the key.
+    /// Inserts the given key and value into the map and returns the previous value, if any,
+    /// corresponding to the given key.
     fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value>;
 }
 
-/// A map that supports alternate key lookups.
+/// A map that supports lookups using keys of type `&Q`.
 pub trait MapLookup<Q: ?Sized>: BaseMap {
     /// Checks if the map contains the given key.
     fn contains_key(&self, key: &Q) -> bool { self.get(key).is_some() }
 
-    /// Returns a reference to the value associated with the given key in the map, or `None` if
-    /// the map does not contain the key.
+    /// Returns a reference to the value in the map, if any, corresponding to the given key.
     fn get(&self, key: &Q) -> Option<&Self::Value>;
 
-    /// Returns a mutable reference to the value associated with the given key in the map, or
-    /// `None` if the map does not contain the key.
+    /// Returns a mutable reference to the value in the map, if any, corresponding to the given
     fn get_mut(&mut self, key: &Q) -> Option<&mut Self::Value>;
 
-    /// Removes the given key from the map, returning the value associated with it, or `None` if
-    /// the map did not contain the key.
+    /// Removes the given key from the map and returns its corresponding value, if any.
     fn remove(&mut self, key: &Q) -> Option<Self::Value>;
 }
 
-/// A map that supports the entry API.
+/// A map that supports efficient in-place manipulation of its entries.
 pub trait EntryMap<'a>: Map {
-    /// The occupied entry type.
+    /// The map's occupied entry type.
     type Occupied: OccupiedEntry<'a, Key = Self::Key, Value = Self::Value>;
 
-    /// The vacant entry type.
+    /// The map's vacant entry type.
     type Vacant: VacantEntry<'a, Key = Self::Key, Value = Self::Value>;
 
-    /// Returns the given key's corresponding entry in the map for in-place manipulation.
+    /// Returns the entry in the map corresponding to the given key.
+    ///
+    /// # Examples
+    ///
+    /// Count the unique items yielded by an iterator:
+    ///
+    /// ```
+    /// use eclectic::EntryMap;
+    ///
+    /// fn count<I, M>(items: I) -> M
+    /// where
+    ///     M: Default + for<'a> EntryMap<'a, Value = usize>,
+    ///     I: IntoIterator<Item = M::Key>,
+    /// {
+    ///     let mut counts = M::default();
+    ///
+    ///     for item in items {
+    ///         *counts.entry(item).or_insert(0) += 1;
+    ///     }
+    ///
+    ///     counts
+    /// }
+    /// ```
+    ///
+    /// Group values into a multimap according to keys yielded by an iterator:
+    ///
+    /// ```
+    /// use eclectic::EntryMap;
+    ///
+    /// fn group<I, V, M>(key_values: I) -> M
+    /// where
+    ///     M: Default + for<'a> EntryMap<'a, Value = Vec<V>>,
+    ///     I: IntoIterator<Item = (M::Key, V)>,
+    /// {
+    ///     let mut groups = M::default();
+    ///
+    ///     for (key, value) in key_values {
+    ///         groups.entry(key).or_insert(vec![]).push(value);
+    ///     }
+    ///
+    ///     groups
+    /// }
+    /// ```
     fn entry(&'a mut self, key: Self::Key) -> Entry<Self::Occupied, Self::Vacant>;
 }
 
 /// A map entry.
+///
+/// See [`EntryMap::entry`](trait.EntryMap.html#tymethod.entry) for an example.
 pub enum Entry<O, V> {
     /// An occupied entry.
     Occupied(O),
@@ -75,8 +126,8 @@ where
     O: OccupiedEntry<'a>,
     V: VacantEntry<'a, Key = O::Key, Value = O::Value>
 {
-    /// Ensures that a value is in the entry by inserting the default if it is empty, and returns a
-    /// mutable reference to the value.
+    /// Ensures that the entry is occupied by inserting the given default value if it is vacant,
+    /// returning a mutable reference to the value.
     pub fn or_insert(self, default: O::Value) -> &'a mut O::Value {
         match self {
             Entry::Occupied(e) => e.into_mut(),
@@ -84,8 +135,8 @@ where
         }
     }
 
-    /// Ensures that a value is in the entry by inserting the result of the default function if it
-    /// is empty, and returns a mutable reference to the value.
+    /// Ensures that the entry is occupied by inserting the the result of the given function if it
+    /// is vacant, returning a mutable reference to the value.
     pub fn or_insert_with<F>(self, default: F) -> &'a mut O::Value where F: FnOnce() -> O::Value {
         match self {
             Entry::Occupied(e) => e.into_mut(),
@@ -108,13 +159,13 @@ pub trait OccupiedEntry<'a> {
     /// Returns a mutable reference to the entry's value.
     fn get_mut(&mut self) -> &mut Self::Value;
 
-    /// Sets the entry's value to the given one, returning the old value.
+    /// Sets the entry's value to the given value and returns the previous one.
     fn insert(&mut self, value: Self::Value) -> Self::Value;
 
     /// Returns a mutable reference to the entry's value with the lifetime of the map.
     fn into_mut(self) -> &'a mut Self::Value;
 
-    /// Removes the entry, returning its value.
+    /// Removes the entry from the map and returns its value.
     fn remove(self) -> Self::Value;
 }
 
@@ -126,8 +177,8 @@ pub trait VacantEntry<'a> {
     /// The entry's value type.
     type Value: 'a;
 
-    /// Sets the entry's value to the given one, returning a mutable reference to the value with
-    /// the lifetime of the map.
+    /// Inserts the entry into the map with the given value, returning a mutable reference to the
+    /// value with the lifetime of the map.
     fn insert(self, value: Self::Value) -> &'a mut Self::Value;
 }
 
@@ -142,8 +193,8 @@ pub trait BaseSet: Collection {
 
 /// A set.
 pub trait Set: SetLookup<<Self as BaseSet>::Item> {
-    /// Inserts the given item into the set, returning `true` if the set did not already contain
-    /// the item.
+    /// Inserts the given item into the set and returns `true` if the set did not already contain
+    /// it.
     fn insert(&mut self, item: Self::Item) -> bool;
 }
 
@@ -152,6 +203,6 @@ pub trait SetLookup<Q: ?Sized>: BaseSet {
     /// Checks if the set contains the given item.
     fn contains(&self, item: &Q) -> bool;
 
-    /// Removes the given item from the set, returning `true` if the set contained the item.
+    /// Removes the given item from the set and returns `true` if the set contained it.
     fn remove(&mut self, item: &Q) -> bool;
 }
