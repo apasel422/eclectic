@@ -1,14 +1,20 @@
 use std::borrow::Borrow;
 use std::collections::btree_map::{self, BTreeMap};
 use std::collections::hash_map::{self, HashMap};
-use std::collections::{BTreeSet, HashSet};
+use std::collections::{BTreeSet, BinaryHeap, HashSet, LinkedList, VecDeque};
 use std::hash::Hash;
 use super::{Collection};
 use super::{BaseMap, Map, MapLookup};
 use super::{Entry, EntryMap, OccupiedEntry, VacantEntry};
 use super::{BaseSet, Set, SetLookup};
 
+impl<T> Collection for BinaryHeap<T> where T: Ord { collection_methods!{} }
+
+impl<T> Collection for LinkedList<T> { collection_methods!{} }
+
 impl<T> Collection for Vec<T> { collection_methods!{} }
+
+impl<T> Collection for VecDeque<T> { collection_methods!{} }
 
 impl<K, V> Collection for BTreeMap<K, V> where K: Ord { collection_methods!{} }
 impl<K, V> BaseMap for BTreeMap<K, V> where K: Ord { type Key = K; type Value = V; }
