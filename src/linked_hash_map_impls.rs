@@ -16,7 +16,7 @@ impl<K, V, S> super::BaseMap for LinkedHashMap<K, V, S> where K: Eq + Hash, S: H
     type Value = V;
 }
 
-impl<K, V, S, Q> super::MapLookup<Q> for LinkedHashMap<K, V, S>
+impl<K, V, S, Q: ?Sized> super::MapLookup<Q> for LinkedHashMap<K, V, S>
 where
     K: Eq + Hash + Borrow<Q>,
     S: HashState,
