@@ -11,4 +11,5 @@ keywords = ["collecton", "map", "set", "data-structure"]
 description = "Experimental collection traits."
 
 [dependencies]
+linked-hash-map = { optional = true }
 vec_map = { optional = true }
