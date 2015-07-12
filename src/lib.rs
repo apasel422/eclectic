@@ -53,10 +53,10 @@ pub trait MapLookup<Q: ?Sized>: BaseMap {
 /// A map that supports the entry API.
 pub trait EntryMap<'a>: Map {
     /// The occupied entry type.
-    type Occupied: OccupiedEntry<'a, Value=Self::Value>;
+    type Occupied: OccupiedEntry<'a, Key = Self::Key, Value=Self::Value>;
 
     /// The vacant entry type.
-    type Vacant: VacantEntry<'a, Value=Self::Value>;
+    type Vacant: VacantEntry<'a, Key = Self::Key, Value=Self::Value>;
 
     /// Returns the given key's corresponding entry in the map for in-place manipulation.
     fn entry(&'a mut self, key: Self::Key) -> Entry<Self::Occupied, Self::Vacant>;
@@ -70,7 +70,11 @@ pub enum Entry<O, V> {
     Vacant(V),
 }
 
-impl<'a, O, V> Entry<O, V> where O: OccupiedEntry<'a>, V: VacantEntry<'a, Value=O::Value> {
+impl<'a, O, V> Entry<O, V>
+where
+    O: OccupiedEntry<'a>,
+    V: VacantEntry<'a, Key = O::Key, Value=O::Value>
+{
     /// Returns a mutable reference to the entry's value if it is occupied, or the vacant entry if
     /// it is vacant.
     pub fn get(self) -> Result<&'a mut O::Value, V> {
@@ -101,6 +105,9 @@ impl<'a, O, V> Entry<O, V> where O: OccupiedEntry<'a>, V: VacantEntry<'a, Value=
 
 /// An occupied map entry.
 pub trait OccupiedEntry<'a> {
+    /// The entry's key type.
+    type Key: 'a;
+
     /// The entry's value type.
     type Value: 'a;
 
@@ -122,6 +129,9 @@ pub trait OccupiedEntry<'a> {
 
 /// A vacant map entry.
 pub trait VacantEntry<'a> {
+    /// The entry's key type.
+    type Key: 'a;
+
     /// The entry's value type.
     type Value: 'a;
 

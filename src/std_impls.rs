@@ -22,7 +22,7 @@ impl<K, V> Map for BTreeMap<K, V> where K: Ord { map_methods!{K, V} }
 impl<K, V, Q: ?Sized> MapLookup<Q> for BTreeMap<K, V>
     where K: Ord + Borrow<Q>, Q: Ord { map_lookup_methods!{Q, V} }
 
-impl<'a, K, V: 'a> EntryMap<'a> for BTreeMap<K, V> where K: Ord {
+impl<'a, K: 'a, V: 'a> EntryMap<'a> for BTreeMap<K, V> where K: Ord {
     type Occupied = btree_map::OccupiedEntry<'a, K, V>;
     type Vacant = btree_map::VacantEntry<'a, K, V>;
 
@@ -36,13 +36,15 @@ impl<'a, K, V: 'a> EntryMap<'a> for BTreeMap<K, V> where K: Ord {
     }
 }
 
-impl<'a, K, V: 'a> OccupiedEntry<'a> for btree_map::OccupiedEntry<'a, K, V> where K: Ord {
+impl<'a, K: 'a, V: 'a> OccupiedEntry<'a> for btree_map::OccupiedEntry<'a, K, V> where K: Ord {
+    type Key = K;
     type Value = V;
     occupied_entry_methods!{V}
     fn into_mut(self) -> &'a mut V { self.into_mut() }
 }
 
-impl<'a, K, V: 'a> VacantEntry<'a> for btree_map::VacantEntry<'a, K, V> where K: Ord {
+impl<'a, K: 'a, V: 'a> VacantEntry<'a> for btree_map::VacantEntry<'a, K, V> where K: Ord {
+    type Key = K;
     type Value = V;
     fn insert(self, value: V) -> &'a mut V { self.insert(value) }
 }
@@ -53,7 +55,7 @@ impl<K, V> Map for HashMap<K, V> where K: Eq + Hash { map_methods!{K, V} }
 impl<K, V, Q: ?Sized> MapLookup<Q> for HashMap<K, V>
     where K: Eq + Hash + Borrow<Q>, Q: Eq + Hash { map_lookup_methods!{Q, V} }
 
-impl<'a, K, V: 'a> EntryMap<'a> for HashMap<K, V> where K: Eq + Hash {
+impl<'a, K: 'a, V: 'a> EntryMap<'a> for HashMap<K, V> where K: Eq + Hash {
     type Occupied = hash_map::OccupiedEntry<'a, K, V>;
     type Vacant = hash_map::VacantEntry<'a, K, V>;
 
@@ -67,13 +69,15 @@ impl<'a, K, V: 'a> EntryMap<'a> for HashMap<K, V> where K: Eq + Hash {
     }
 }
 
-impl<'a, K, V: 'a> OccupiedEntry<'a> for hash_map::OccupiedEntry<'a, K, V> where K: Eq + Hash {
+impl<'a, K: 'a, V: 'a> OccupiedEntry<'a> for hash_map::OccupiedEntry<'a, K, V> where K: Eq + Hash {
+    type Key = K;
     type Value = V;
     occupied_entry_methods!{V}
     fn into_mut(self) -> &'a mut V { self.into_mut() }
 }
 
-impl<'a, K, V: 'a> VacantEntry<'a> for hash_map::VacantEntry<'a, K, V> where K: Eq + Hash {
+impl<'a, K: 'a, V: 'a> VacantEntry<'a> for hash_map::VacantEntry<'a, K, V> where K: Eq + Hash {
+    type Key = K;
     type Value = V;
     fn insert(self, value: V) -> &'a mut V { self.insert(value) }
 }
