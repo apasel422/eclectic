@@ -2,6 +2,7 @@ use super::*;
 
 use std::borrow::Borrow;
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedList, VecDeque};
+use std::collections::{btree_map, hash_map};
 use std::hash::Hash;
 
 impl<T> Len for [T] {
@@ -47,6 +48,34 @@ impl<K, V, Q: ?Sized> map::Remove<Q> for BTreeMap<K, V> where K: Ord + Borrow<Q>
 
 impl<K, V> map::Insert for BTreeMap<K, V> where K: Ord {
     fn insert(&mut self, key: K, value: V) -> Option<V> { self.insert(key, value) }
+}
+
+impl<'a, K: 'a, V: 'a> map::EntryMap<'a> for BTreeMap<K, V> where K: Ord {
+    type OccupiedEntry = btree_map::OccupiedEntry<'a, K, V>;
+    type VacantEntry = btree_map::VacantEntry<'a, K, V>;
+
+    fn entry(&'a mut self, key: K) -> map::Entry<Self::OccupiedEntry, Self::VacantEntry> {
+        match self.entry(key) {
+            btree_map::Entry::Occupied(e) => map::Entry::Occupied(e),
+            btree_map::Entry::Vacant(e) => map::Entry::Vacant(e),
+        }
+    }
+}
+
+impl<'a, K: 'a, V: 'a> map::OccupiedEntry<'a> for btree_map::OccupiedEntry<'a, K, V> where K: Ord {
+    type Key = K;
+    type Value = V;
+    fn get(&self) -> &V { self.get() }
+    fn get_mut(&mut self) -> &mut V { self.get_mut() }
+    fn into_mut(self) -> &'a mut V { self.into_mut() }
+    fn insert(&mut self, value: V) -> V { self.insert(value) }
+    fn remove(self) -> V { self.remove() }
+}
+
+impl<'a, K: 'a, V: 'a> map::VacantEntry<'a> for btree_map::VacantEntry<'a, K, V> where K: Ord {
+    type Key = K;
+    type Value = V;
+    fn insert(self, value: V) -> &'a mut V { self.insert(value) }
 }
 
 impl<T> Len for BTreeSet<T> where T: Ord {
@@ -103,6 +132,40 @@ impl<K, V, Q: ?Sized> map::Remove<Q> for HashMap<K, V> where K: Eq + Hash + Borr
 
 impl<K, V> map::Insert for HashMap<K, V> where K: Eq + Hash {
     fn insert(&mut self, key: K, value: V) -> Option<V> { self.insert(key, value) }
+}
+
+impl<'a, K: 'a, V: 'a> map::EntryMap<'a> for HashMap<K, V> where K: Eq + Hash {
+    type OccupiedEntry = hash_map::OccupiedEntry<'a, K, V>;
+    type VacantEntry = hash_map::VacantEntry<'a, K, V>;
+
+    fn entry(&'a mut self, key: K) -> map::Entry<Self::OccupiedEntry, Self::VacantEntry> {
+        match self.entry(key) {
+            hash_map::Entry::Occupied(e) => map::Entry::Occupied(e),
+            hash_map::Entry::Vacant(e) => map::Entry::Vacant(e),
+        }
+    }
+}
+
+impl<'a, K: 'a, V: 'a> map::OccupiedEntry<'a> for hash_map::OccupiedEntry<'a, K, V>
+where
+    K: Eq + Hash,
+{
+    type Key = K;
+    type Value = V;
+    fn get(&self) -> &V { self.get() }
+    fn get_mut(&mut self) -> &mut V { self.get_mut() }
+    fn into_mut(self) -> &'a mut V { self.into_mut() }
+    fn insert(&mut self, value: V) -> V { self.insert(value) }
+    fn remove(self) -> V { self.remove() }
+}
+
+impl<'a, K: 'a, V: 'a> map::VacantEntry<'a> for hash_map::VacantEntry<'a, K, V>
+where
+    K: Eq + Hash,
+{
+    type Key = K;
+    type Value = V;
+    fn insert(self, value: V) -> &'a mut V { self.insert(value) }
 }
 
 impl<T> Len for HashSet<T> where T: Eq + Hash {
@@ -169,4 +232,19 @@ impl<T> Len for VecDeque<T> {
 
 impl<T> Clear for VecDeque<T> {
     fn clear(&mut self) { self.clear(); }
+}
+
+#[test]
+fn test() {
+    let chars = ['a', 'a', 'b', 'c', 'a', 'b'];
+
+    let counts: BTreeMap<_, _> = map::count(chars.iter().cloned());
+    assert_eq!(counts[&'a'], 3);
+    assert_eq!(counts[&'b'], 2);
+    assert_eq!(counts[&'c'], 1);
+
+    let counts: HashMap<_, _> = map::count(chars.iter().cloned());
+    assert_eq!(counts[&'a'], 3);
+    assert_eq!(counts[&'b'], 2);
+    assert_eq!(counts[&'c'], 1);
 }
