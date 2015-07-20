@@ -17,4 +17,5 @@ std_impls = []
 [dependencies]
 linear-map = { optional = true }
 linked-hash-map = { optional = true }
+trie = { optional = true }
 vec_map = { optional = true }

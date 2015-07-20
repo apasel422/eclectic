@@ -7,7 +7,7 @@ matrix:
               - FEATURES='linear-map vec_map'
         - rust: nightly
           env:
-              - FEATURES='nightly linear-map linked-hash-map vec_map'
+              - FEATURES='nightly linear-map linked-hash-map trie vec_map'
 script:
     - cargo build --features "$FEATURES"
     - cargo test --features "$FEATURES"
