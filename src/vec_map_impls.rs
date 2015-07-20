@@ -63,6 +63,7 @@ impl<'a, V: 'a> map::VacantEntry<'a> for vec_map::VacantEntry<'a, V> {
     fn insert(self, value: V) -> &'a mut V { self.insert(value) }
 }
 
+#[cfg(feature = "nightly")]
 #[test]
 fn test() {
     let chars = [1, 1, 2, 3, 1, 2];

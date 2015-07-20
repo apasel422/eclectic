@@ -4,14 +4,14 @@ matrix:
     include:
         - rust: stable
           env:
-              - --features='linear-map vec_map'
+              - FEATURES='linear-map vec_map'
         - rust: nightly
           env:
-              - --features='linear-map linked-hash-map vec_map'
+              - FEATURES='nightly linear-map linked-hash-map vec_map'
 script:
-    - cargo build $FEATURES
-    - cargo test $FEATURES
-    - cargo doc --no-deps $FEATURES
+    - cargo build --features "$FEATURES"
+    - cargo test --features "$FEATURES"
+    - cargo doc --no-deps --features "$FEATURES"
 after_success: |
     [ $TRAVIS_TAG ] &&
     [ $TRAVIS_RUST_VERSION = stable ] &&

@@ -64,6 +64,7 @@ impl<'a, K: 'a, V: 'a> map::VacantEntry<'a> for linear_map::VacantEntry<'a, K, V
     fn insert(self, value: V) -> &'a mut V { self.insert(value) }
 }
 
+#[cfg(feature = "nightly")]
 #[test]
 fn test() {
     let chars = ['a', 'a', 'b', 'c', 'a', 'b'];

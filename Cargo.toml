@@ -11,6 +11,7 @@ description = "Experimental collection traits."
 
 [features]
 default = ["std_impls"]
+nightly = []
 std_impls = []
 
 [dependencies]
