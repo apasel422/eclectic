@@ -102,7 +102,7 @@ pub mod map {
 
     /// A map that supports removals using keys of type `&Q`.
     pub trait Remove<Q: ?Sized>: GetMut<Q> {
-        /// Removes the given key from them map and returns its corresponding value, if any.
+        /// Removes the given key from the map and returns its corresponding value, if any.
         fn remove(&mut self, key: &Q) -> Option<Self::Value>;
     }
 
