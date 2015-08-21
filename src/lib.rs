@@ -124,7 +124,10 @@ pub mod map {
     /// A map that supports efficient in-place manipulation.
     ///
     /// `'a` is the lifetime of the map.
-    pub trait EntryMap<'a>: Base {
+    pub trait EntryMap<'a>: Base where
+        <Self as Base>::Key: 'a,
+        <Self as Base>::Value: 'a,
+    {
         /// The type of the map's occupied entries.
         type OccupiedEntry: OccupiedEntry<'a, Key = Self::Key, Value = Self::Value>;
 
