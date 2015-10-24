@@ -234,7 +234,6 @@ impl<T> Clear for VecDeque<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
-#[cfg(feature = "nightly")]
 #[test]
 fn test() {
     let chars = ['a', 'a', 'b', 'c', 'a', 'b'];

@@ -36,20 +36,7 @@
 //! }
 //! ```
 
-#[cfg(feature = "linear-map")]
-mod linear_map_impls;
-
-#[cfg(feature = "linked-hash-map")]
-mod linked_hash_map_impls;
-
-#[cfg(feature = "std_impls")]
 mod std_impls;
-
-#[cfg(feature = "trie")]
-mod trie_impls;
-
-#[cfg(feature = "vec_map")]
-mod vec_map_impls;
 
 /// A collection that contains a finite number of items.
 pub trait Len {

@@ -3,15 +3,11 @@ sudo: false
 matrix:
     include:
         - rust: stable
-          env:
-              - FEATURES='linear-map vec_map'
         - rust: nightly
-          env:
-              - FEATURES='nightly linear-map linked-hash-map trie vec_map'
 script:
-    - cargo build --features "$FEATURES"
-    - cargo test --features "$FEATURES"
-    - cargo doc --no-deps --features "$FEATURES"
+    - cargo build
+    - cargo test
+    - cargo doc --no-deps
 after_success: |
     [ $TRAVIS_TAG ] &&
     [ $TRAVIS_RUST_VERSION = stable ] &&
