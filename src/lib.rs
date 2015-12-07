@@ -53,6 +53,24 @@ pub trait Clear {
     fn clear(&mut self);
 }
 
+/// A collection that can be created.
+///
+/// All collections that implement `Default` should implement this trait and override its methods
+/// where beneficial.
+pub trait New: Default {
+    /// Creates a new collection with the given capacity hint.
+    ///
+    /// Code that needs to create a collection should prefer this method to
+    /// `<Self as Default>::default` when the capacity of the collection is known ahead of time.
+    ///
+    /// The default implementation calls `<Self as Default>::default`. Collections should override
+    /// this method if they are able to make use of the capacity hint.
+    fn with_capacity_hint(capacity: usize) -> Self {
+        let _ = capacity;
+        Self::default()
+    }
+}
+
 pub mod map {
     //! Maps.
     //!

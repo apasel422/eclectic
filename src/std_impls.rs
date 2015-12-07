@@ -19,6 +19,12 @@ impl<T> Clear for BinaryHeap<T> where T: Ord {
     fn clear(&mut self) { self.clear(); }
 }
 
+impl<T> New for BinaryHeap<T> where T: Ord {
+    fn with_capacity_hint(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
+}
+
 impl<K, V> Len for BTreeMap<K, V> where K: Ord {
     fn is_empty(&self) -> bool { self.is_empty() }
     fn len(&self) -> usize { self.len() }
@@ -27,6 +33,8 @@ impl<K, V> Len for BTreeMap<K, V> where K: Ord {
 impl<K, V> Clear for BTreeMap<K, V> where K: Ord {
     fn clear(&mut self) { self.clear(); }
 }
+
+impl<K, V> New for BTreeMap<K, V> where K: Ord {}
 
 impl<K, V> map::Base for BTreeMap<K, V> where K: Ord {
     type Key = K;
@@ -87,6 +95,8 @@ impl<T> Clear for BTreeSet<T> where T: Ord {
     fn clear(&mut self) { self.clear(); }
 }
 
+impl<T> New for BTreeSet<T> where T: Ord {}
+
 impl<T> set::Base for BTreeSet<T> where T: Ord {
     type Item = T;
 }
@@ -110,6 +120,12 @@ impl<K, V> Len for HashMap<K, V> where K: Eq + Hash {
 
 impl<K, V> Clear for HashMap<K, V> where K: Eq + Hash {
     fn clear(&mut self) { self.clear(); }
+}
+
+impl<K, V> New for HashMap<K, V> where K: Eq + Hash {
+    fn with_capacity_hint(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
 }
 
 impl<K, V> map::Base for HashMap<K, V> where K: Eq + Hash {
@@ -177,6 +193,12 @@ impl<T> Clear for HashSet<T> where T: Eq + Hash {
     fn clear(&mut self) { self.clear(); }
 }
 
+impl<T> New for HashSet<T> where T: Eq + Hash {
+    fn with_capacity_hint(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
+}
+
 impl<T> set::Base for HashSet<T> where T: Eq + Hash {
     type Item = T;
 }
@@ -202,6 +224,8 @@ impl<T> Clear for LinkedList<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
+impl<T> New for LinkedList<T> {}
+
 impl Len for String {
     fn is_empty(&self) -> bool { self.is_empty() }
     fn len(&self) -> usize { self.len() }
@@ -209,6 +233,12 @@ impl Len for String {
 
 impl Clear for String {
     fn clear(&mut self) { self.clear(); }
+}
+
+impl New for String {
+    fn with_capacity_hint(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
 }
 
 impl Len for str {
@@ -225,6 +255,12 @@ impl<T> Clear for Vec<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
+impl<T> New for Vec<T> {
+    fn with_capacity_hint(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
+}
+
 impl<T> Len for VecDeque<T> {
     fn is_empty(&self) -> bool { self.is_empty() }
     fn len(&self) -> usize { self.len() }
@@ -232,6 +268,12 @@ impl<T> Len for VecDeque<T> {
 
 impl<T> Clear for VecDeque<T> {
     fn clear(&mut self) { self.clear(); }
+}
+
+impl<T> New for VecDeque<T> {
+    fn with_capacity_hint(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
 }
 
 #[test]
