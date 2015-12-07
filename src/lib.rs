@@ -73,7 +73,7 @@ pub mod map {
     }
 
     /// A map that supports lookups using keys of type `&Q`.
-    pub trait Get<Q: ?Sized>: Base {
+    pub trait Get<Q: ?Sized = <Self as Base>::Key>: Base {
         /// Checks if the map contains the given key.
         fn contains_key(&self, key: &Q) -> bool { self.get(key).is_some() }
 
@@ -82,13 +82,13 @@ pub mod map {
     }
 
     /// A map that supports mutable lookups using keys of type `&Q`.
-    pub trait GetMut<Q: ?Sized>: Get<Q> {
+    pub trait GetMut<Q: ?Sized = <Self as Base>::Key>: Get<Q> {
         /// Returns a mutable reference to the value in the map corresponding to the given key.
         fn get_mut(&mut self, key: &Q) -> Option<&mut Self::Value>;
     }
 
     /// A map that supports removals using keys of type `&Q`.
-    pub trait Remove<Q: ?Sized>: GetMut<Q> {
+    pub trait Remove<Q: ?Sized = <Self as Base>::Key>: GetMut<Q> {
         /// Removes the given key from the map and returns its corresponding value, if any.
         fn remove(&mut self, key: &Q) -> Option<Self::Value>;
     }
@@ -104,9 +104,9 @@ pub mod map {
     /// A map.
     ///
     /// This trait is implemented for all types that implement `{Len, Clear, Insert, Remove}`.
-    pub trait Map: Len + Clear + Insert + Remove<<Self as Base>::Key> {}
+    pub trait Map: Len + Clear + Insert + Remove {}
 
-    impl<M: ?Sized> Map for M where M: Len + Clear + Insert + Remove<<M as Base>::Key> {}
+    impl<M: ?Sized> Map for M where M: Len + Clear + Insert + Remove {}
 
     /// A map that supports efficient in-place manipulation.
     ///
@@ -228,13 +228,13 @@ pub mod set {
     }
 
     /// A set that supports lookups using items of type `&Q`.
-    pub trait Contains<Q: ?Sized>: Base {
+    pub trait Contains<Q: ?Sized = <Self as Base>::Item>: Base {
         /// Checks if the set contains the given item.
         fn contains(&self, item: &Q) -> bool;
     }
 
     /// A set that supports removals using items of type `&Q`.
-    pub trait Remove<Q: ?Sized>: Contains<Q> {
+    pub trait Remove<Q: ?Sized = <Self as Base>::Item>: Contains<Q> {
         /// Removes the given item from the set and returns `true` if the set contained it.
         fn remove(&mut self, item: &Q) -> bool;
     }
@@ -249,7 +249,7 @@ pub mod set {
     /// A set.
     ///
     /// This trait is implemented for all types that implement `{Len, Clear, Insert, Remove}`.
-    pub trait Set: Len + Clear + Insert + Remove<<Self as Base>::Item> {}
+    pub trait Set: Len + Clear + Insert + Remove {}
 
-    impl<S: ?Sized> Set for S where S: Len + Clear + Insert + Remove<<S as Base>::Item> {}
+    impl<S: ?Sized> Set for S where S: Len + Clear + Insert + Remove {}
 }
