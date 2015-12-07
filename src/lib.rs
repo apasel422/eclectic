@@ -57,7 +57,7 @@ pub trait Clear {
 ///
 /// All collections that implement `Default` should implement this trait and override its methods
 /// where beneficial.
-pub trait New: Default {
+pub trait New: Sized + Default {
     /// Creates a new collection with the given capacity hint.
     ///
     /// Code that needs to create a collection should prefer this method to
