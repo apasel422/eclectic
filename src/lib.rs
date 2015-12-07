@@ -224,6 +224,7 @@ pub mod set {
     ///
     /// It is unusual to bound a type by this trait directly.
     pub trait Base {
+        /// The set's item type.
         type Item;
     }
 
