@@ -8,7 +8,7 @@ To use `eclectic` with Cargo, add this to `Cargo.toml`:
 
 ```toml
 [dependencies]
-eclectic = "*"
+eclectic = "0.6"
 ```
 
 and this to the crate root:
