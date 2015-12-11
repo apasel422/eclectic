@@ -129,80 +129,67 @@ pub mod map {
     /// A map that supports efficient in-place manipulation.
     ///
     /// `'a` is the lifetime of the map.
-    pub trait EntryMap<'a>: Base where
-        <Self as Base>::Key: 'a,
-        <Self as Base>::Value: 'a,
-    {
+    pub trait EntryMap<'a>: Base {
         /// The type of the map's occupied entries.
-        type OccupiedEntry: OccupiedEntry<'a, Key = Self::Key, Value = Self::Value>;
+        type OccupiedEntry: OccupiedEntry<'a, Map = Self>;
 
         /// The type of the map's vacant entries.
-        type VacantEntry: VacantEntry<'a, Key = Self::Key, Value = Self::Value>;
+        type VacantEntry: VacantEntry<'a, Map = Self>;
 
         /// Returns the entry in the map corresponding to the given key.
-        fn entry(&'a mut self, key: Self::Key) -> Entry<Self::OccupiedEntry, Self::VacantEntry>;
+        fn entry(&'a mut self, key: Self::Key) -> Entry<Self>;
     }
 
     /// An occupied map entry.
     ///
     /// `'a` is the lifetime of the map.
-    pub trait OccupiedEntry<'a> {
-        /// The type of the map's keys.
-        type Key: 'a;
-
-        /// The type of the map's values.
-        type Value: 'a;
+    pub trait OccupiedEntry<'a>: Sized {
+        /// The entry's map type.
+        type Map: ?Sized + EntryMap<'a, OccupiedEntry = Self>;
 
         /// Returns a reference to the entry's value.
-        fn get(&self) -> &Self::Value;
+        fn get(&self) -> &<Self::Map as Base>::Value;
 
         /// Returns a mutable reference to the entry's value.
-        fn get_mut(&mut self) -> &mut Self::Value;
+        fn get_mut(&mut self) -> &mut <Self::Map as Base>::Value;
 
         /// Returns a mutable reference to the entry's value with the same lifetime as the map.
-        fn into_mut(self) -> &'a mut Self::Value;
+        fn into_mut(self) -> &'a mut <Self::Map as Base>::Value;
 
         /// Replaces the entry's value with the given one and returns the old value.
-        fn insert(&mut self, value: Self::Value) -> Self::Value {
+        fn insert(&mut self, value: <Self::Map as Base>::Value) -> <Self::Map as Base>::Value {
             ::std::mem::replace(self.get_mut(), value)
         }
 
         /// Removes the entry from the map and returns its value.
-        fn remove(self) -> Self::Value;
+        fn remove(self) -> <Self::Map as Base>::Value;
     }
 
     /// A vacant map entry.
     ///
     /// `'a` is the lifetime of the map.
-    pub trait VacantEntry<'a> {
-        /// The type of the map's keys.
-        type Key: 'a;
-
-        /// The type of the map's values.
-        type Value: 'a;
+    pub trait VacantEntry<'a>: Sized {
+        /// The entry's map type.
+        type Map: ?Sized + EntryMap<'a, VacantEntry = Self>;
 
         /// Inserts the entry into the map with the given value and returns a mutable reference to
         /// it with the same lifetime as the map.
-        fn insert(self, value: Self::Value) -> &'a mut Self::Value;
+        fn insert(self, value: <Self::Map as Base>::Value) -> &'a mut <Self::Map as Base>::Value;
     }
 
     /// A map entry.
     #[derive(Debug)]
-    pub enum Entry<OE, VE> {
+    pub enum Entry<'a, M: ?Sized> where M: EntryMap<'a> {
         /// An occupied map entry.
-        Occupied(OE),
+        Occupied(M::OccupiedEntry),
         /// A vacant map entry.
-        Vacant(VE),
+        Vacant(M::VacantEntry),
     }
 
-    impl<'a, OE, VE> Entry<OE, VE>
-    where
-        OE: OccupiedEntry<'a>,
-        VE: VacantEntry<'a, Value = OE::Value>,
-    {
+    impl<'a, M: ?Sized> Entry<'a, M> where M: EntryMap<'a> {
         /// Ensures the entry is occupied by inserting it with the given default value if it is
         /// vacant.
-        pub fn or_insert(self, default: VE::Value) -> &'a mut OE::Value {
+        pub fn or_insert(self, default: M::Value) -> &'a mut M::Value {
             match self {
                 Entry::Occupied(e) => e.into_mut(),
                 Entry::Vacant(e) => e.insert(default),
@@ -211,7 +198,7 @@ pub mod map {
 
         /// Ensures the entry is occupied by inserting it with the result of the given function if
         /// it is vacant.
-        pub fn or_insert_with<F>(self, f: F) -> &'a mut OE::Value where F: FnOnce() -> VE::Value {
+        pub fn or_insert_with<F>(self, f: F) -> &'a mut M::Value where F: FnOnce() -> M::Value {
             match self {
                 Entry::Occupied(e) => e.into_mut(),
                 Entry::Vacant(e) => e.insert(f()),

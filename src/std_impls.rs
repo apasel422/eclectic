@@ -62,7 +62,7 @@ impl<'a, K: 'a, V: 'a> map::EntryMap<'a> for BTreeMap<K, V> where K: Ord {
     type OccupiedEntry = btree_map::OccupiedEntry<'a, K, V>;
     type VacantEntry = btree_map::VacantEntry<'a, K, V>;
 
-    fn entry(&'a mut self, key: K) -> map::Entry<Self::OccupiedEntry, Self::VacantEntry> {
+    fn entry(&'a mut self, key: K) -> map::Entry<Self> {
         match self.entry(key) {
             btree_map::Entry::Occupied(e) => map::Entry::Occupied(e),
             btree_map::Entry::Vacant(e) => map::Entry::Vacant(e),
@@ -71,8 +71,7 @@ impl<'a, K: 'a, V: 'a> map::EntryMap<'a> for BTreeMap<K, V> where K: Ord {
 }
 
 impl<'a, K: 'a, V: 'a> map::OccupiedEntry<'a> for btree_map::OccupiedEntry<'a, K, V> where K: Ord {
-    type Key = K;
-    type Value = V;
+    type Map = BTreeMap<K, V>;
     fn get(&self) -> &V { self.get() }
     fn get_mut(&mut self) -> &mut V { self.get_mut() }
     fn into_mut(self) -> &'a mut V { self.into_mut() }
@@ -81,8 +80,7 @@ impl<'a, K: 'a, V: 'a> map::OccupiedEntry<'a> for btree_map::OccupiedEntry<'a, K
 }
 
 impl<'a, K: 'a, V: 'a> map::VacantEntry<'a> for btree_map::VacantEntry<'a, K, V> where K: Ord {
-    type Key = K;
-    type Value = V;
+    type Map = BTreeMap<K, V>;
     fn insert(self, value: V) -> &'a mut V { self.insert(value) }
 }
 
@@ -154,7 +152,7 @@ impl<'a, K: 'a, V: 'a> map::EntryMap<'a> for HashMap<K, V> where K: Eq + Hash {
     type OccupiedEntry = hash_map::OccupiedEntry<'a, K, V>;
     type VacantEntry = hash_map::VacantEntry<'a, K, V>;
 
-    fn entry(&'a mut self, key: K) -> map::Entry<Self::OccupiedEntry, Self::VacantEntry> {
+    fn entry(&'a mut self, key: K) -> map::Entry<Self> {
         match self.entry(key) {
             hash_map::Entry::Occupied(e) => map::Entry::Occupied(e),
             hash_map::Entry::Vacant(e) => map::Entry::Vacant(e),
@@ -166,8 +164,7 @@ impl<'a, K: 'a, V: 'a> map::OccupiedEntry<'a> for hash_map::OccupiedEntry<'a, K,
 where
     K: Eq + Hash,
 {
-    type Key = K;
-    type Value = V;
+    type Map = HashMap<K, V>;
     fn get(&self) -> &V { self.get() }
     fn get_mut(&mut self) -> &mut V { self.get_mut() }
     fn into_mut(self) -> &'a mut V { self.into_mut() }
@@ -179,8 +176,7 @@ impl<'a, K: 'a, V: 'a> map::VacantEntry<'a> for hash_map::VacantEntry<'a, K, V>
 where
     K: Eq + Hash,
 {
-    type Key = K;
-    type Value = V;
+    type Map = HashMap<K, V>;
     fn insert(self, value: V) -> &'a mut V { self.insert(value) }
 }
 
