@@ -176,6 +176,58 @@ pub mod map {
     }
 }
 
+pub mod seq {
+    //! Sequences.
+
+    /// A sequence that supports insertion.
+    pub trait PushBack: super::Insert {
+        /// Pushes the given item onto the back of the sequence.
+        fn push_back(&mut self, item: Self::Item);
+    }
+
+    /// A queue.
+    pub trait Queue: PushBack + super::Remove {
+        /// Returns a reference to the item at the front of the queue.
+        ///
+        /// Returns `None` if the queue is empty.
+        fn front(&self) -> Option<&Self::Item>;
+
+        /// Returns a mutable reference to the item at the front of the queue.
+        ///
+        /// Returns `None` if the queue is empty.
+        fn front_mut(&mut self) -> Option<&mut Self::Item>;
+
+        /// Removes and returns the item at the front of the queue.
+        ///
+        /// Returns `None` if the queue is empty.
+        fn pop_front(&mut self) -> Option<Self::Item>;
+    }
+
+    /// A stack.
+    pub trait Stack: PushBack + super::Remove {
+        /// Returns a reference to the item at the back of the stack.
+        ///
+        /// Returns `None` if the stack is empty.
+        fn back(&self) -> Option<&Self::Item>;
+
+        /// Returns a mutable reference to the item at the back of the stack.
+        ///
+        /// Returns `None` if the stack is empty.
+        fn back_mut(&mut self) -> Option<&mut Self::Item>;
+
+        /// Removes and returns the item at the back of the stack.
+        ///
+        /// Returns `None` if the stack is empty.
+        fn pop_back(&mut self) -> Option<Self::Item>;
+    }
+
+    /// A deque (double-ended queue).
+    pub trait Deque: Queue + Stack {
+        /// Pushes the given item onto the front of the deque.
+        fn push_front(&mut self, item: Self::Item);
+    }
+}
+
 pub mod set {
     //! Sets.
 

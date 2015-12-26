@@ -246,6 +246,26 @@ impl<T> Remove for LinkedList<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
+impl<T> seq::PushBack for LinkedList<T> {
+    fn push_back(&mut self, item: T) { self.push_back(item); }
+}
+
+impl<T> seq::Queue for LinkedList<T> {
+    fn front(&self) -> Option<&T> { self.front() }
+    fn front_mut(&mut self) -> Option<&mut T> { self.front_mut() }
+    fn pop_front(&mut self) -> Option<T> { self.pop_front() }
+}
+
+impl<T> seq::Stack for LinkedList<T> {
+    fn back(&self) -> Option<&T> { self.back() }
+    fn back_mut(&mut self) -> Option<&mut T> { self.back_mut() }
+    fn pop_back(&mut self) -> Option<T> { self.pop_back() }
+}
+
+impl<T> seq::Deque for LinkedList<T> {
+    fn push_front(&mut self, item: T) { self.push_front(item); }
+}
+
 impl<T> Collection for Vec<T> {
     type Item = T;
     fn is_empty(&self) -> bool { self.is_empty() }
@@ -260,6 +280,16 @@ impl<T> Remove for Vec<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
+impl<T> seq::PushBack for Vec<T> {
+    fn push_back(&mut self, item: T) { self.push(item); }
+}
+
+impl<T> seq::Stack for Vec<T> {
+    fn back(&self) -> Option<&T> { self.last() }
+    fn back_mut(&mut self) -> Option<&mut T> { self.last_mut() }
+    fn pop_back(&mut self) -> Option<T> { self.pop() }
+}
+
 impl<T> Collection for VecDeque<T> {
     type Item = T;
     fn is_empty(&self) -> bool { self.is_empty() }
@@ -272,6 +302,26 @@ impl<T> Insert for VecDeque<T> {
 
 impl<T> Remove for VecDeque<T> {
     fn clear(&mut self) { self.clear(); }
+}
+
+impl<T> seq::PushBack for VecDeque<T> {
+    fn push_back(&mut self, item: T) { self.push_back(item); }
+}
+
+impl<T> seq::Queue for VecDeque<T> {
+    fn front(&self) -> Option<&T> { self.front() }
+    fn front_mut(&mut self) -> Option<&mut T> { self.front_mut() }
+    fn pop_front(&mut self) -> Option<T> { self.pop_front() }
+}
+
+impl<T> seq::Stack for VecDeque<T> {
+    fn back(&self) -> Option<&T> { self.back() }
+    fn back_mut(&mut self) -> Option<&mut T> { self.back_mut() }
+    fn pop_back(&mut self) -> Option<T> { self.pop_back() }
+}
+
+impl<T> seq::Deque for VecDeque<T> {
+    fn push_front(&mut self, item: T) { self.push_front(item); }
 }
 
 #[test]
