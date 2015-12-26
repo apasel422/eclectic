@@ -18,6 +18,10 @@ impl<T: Ord> Collection for BinaryHeap<T> {
     fn len(&self) -> usize { self.len() }
 }
 
+impl<T: Ord> Insert for BinaryHeap<T> {
+    fn append(&mut self, other: &mut Self) { self.extend(other.drain()); }
+}
+
 impl<T: Ord> Remove for BinaryHeap<T> {
     fn clear(&mut self) { self.clear(); }
 }
@@ -232,6 +236,12 @@ impl<T> Collection for LinkedList<T> {
     fn len(&self) -> usize { self.len() }
 }
 
+impl<T> Insert for LinkedList<T> {
+    fn append(&mut self, other: &mut Self) {
+        self.append(other);
+    }
+}
+
 impl<T> Remove for LinkedList<T> {
     fn clear(&mut self) { self.clear(); }
 }
@@ -242,6 +252,10 @@ impl<T> Collection for Vec<T> {
     fn len(&self) -> usize { self.len() }
 }
 
+impl<T> Insert for Vec<T> {
+    fn append(&mut self, other: &mut Self) { self.append(other); }
+}
+
 impl<T> Remove for Vec<T> {
     fn clear(&mut self) { self.clear(); }
 }
@@ -250,6 +264,10 @@ impl<T> Collection for VecDeque<T> {
     type Item = T;
     fn is_empty(&self) -> bool { self.is_empty() }
     fn len(&self) -> usize { self.len() }
+}
+
+impl<T> Insert for VecDeque<T> {
+    fn append(&mut self, other: &mut Self) { self.append(other); }
 }
 
 impl<T> Remove for VecDeque<T> {
