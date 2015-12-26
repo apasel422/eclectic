@@ -1,135 +1,93 @@
 //! Collection traits for generic programming.
-//!
-//! Code that uses these traits should use them as generally as possible. For example, consider the
-//! following function that fills a map with default values for some keys:
-//!
-//! ```
-//! use eclectic::map::*;
-//!
-//! fn fill<M, K>(keys: K) -> M
-//! where
-//!     M: Default + Map,
-//!     K: IntoIterator<Item = M::Key>,
-//!     M::Value: Default,
-//! {
-//!     let mut map = M::default();
-//!     for key in keys { map.insert(key, M::Value::default()); }
-//!     map
-//! }
-//! ```
-//!
-//! `Map` is a convenient shorthand for code that uses multiple map APIs, but this code only ever
-//! calls `insert`, so it could be rewritten more generally as:
-//!
-//! ```
-//! use eclectic::map;
-//!
-//! fn fill<M, K>(keys: K) -> M
-//! where
-//!     M: Default + map::Insert,
-//!     K: IntoIterator<Item = M::Key>,
-//!     M::Value: Default,
-//! {
-//!     let mut map = M::default();
-//!     for key in keys { map.insert(key, M::Value::default()); }
-//!     map
-//! }
-//! ```
+
+#![deny(missing_docs)]
+#![feature(set_recovery)]
 
 mod std_impls;
 
-/// A collection that contains a finite number of items.
-pub trait Len {
-    /// Checks if the collection is empty.
-    fn is_empty(&self) -> bool { self.len() == 0 }
+/// A collection.
+pub trait Collection {
+    /// The type of the collection's items.
+    type Item;
+
+    /// Checks if the collection contains zero items.
+    ///
+    /// This is equivalent to `self.len() == 0`, but may be optimized.
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 
     /// Returns the number of items in the collection.
     fn len(&self) -> usize;
 }
 
-/// A collection that can be cleared.
-pub trait Clear {
+/// A collection that supports insertion.
+pub trait Insert: Collection {
+    /// Moves all items from the given collection into the collection.
+    fn append(&mut self, other: &mut Self) where Self: Sized;
+}
+
+/// A collection that supports removal.
+pub trait Remove: Collection {
     /// Removes all items from the collection.
     fn clear(&mut self);
 }
 
-/// A collection that can be created.
-///
-/// All collections that implement `Default` should implement this trait and override its methods
-/// where beneficial.
-pub trait New: Sized + Default {
-    /// Creates a new collection with the given capacity hint.
-    ///
-    /// Code that needs to create a collection should prefer this method to
-    /// `<Self as Default>::default` when the capacity of the collection is known ahead of time.
-    ///
-    /// The default implementation calls `<Self as Default>::default`. Collections should override
-    /// this method if they are able to make use of the capacity hint.
-    fn with_capacity_hint(capacity: usize) -> Self {
-        let _ = capacity;
-        Self::default()
-    }
-}
-
 pub mod map {
     //! Maps.
-    //!
-    //! A map is a collection that associates keys with corresponding values, where the keys are
-    //! distinguished according to some uniqueness criteria.
 
-    use super::*;
-
-    /// A trait that declares a map's key and value types.
+    /// A map.
     ///
-    /// It is unusual to bound a type by this trait directly.
-    pub trait Base {
-        /// The map's key type.
+    /// A map is a collection that associates keys with values, where the keys are distinguished
+    /// according to some uniqueness criteria.
+    pub trait Map: super::Collection<Item = (<Self as Map>::Key, <Self as Map>::Value)> {
+        /// The type of the map's keys.
         type Key;
 
-        /// The map's value type.
+        /// The type of the map's values.
         type Value;
     }
 
     /// A map that supports lookups using keys of type `&Q`.
-    pub trait Get<Q: ?Sized = <Self as Base>::Key>: Base {
-        /// Checks if the map contains the given key.
-        fn contains_key(&self, key: &Q) -> bool { self.get(key).is_some() }
+    pub trait Get<Q: ?Sized = <Self as Map>::Key>: Map {
+        /// Checks if the map contains a key that is equivalent to the given key.
+        ///
+        /// This is equivalent to `self.get(key).is_some()`, but may be optimized.
+        fn contains_key(&self, key: &Q) -> bool {
+            self.get(key).is_some()
+        }
 
-        /// Returns a reference to the value in the map corresponding to the given key.
+        /// Returns a reference to the value in the map whose key is equivalent to the given key.
+        ///
+        /// Returns `None` if the map contains no such key.
         fn get(&self, key: &Q) -> Option<&Self::Value>;
-    }
 
-    /// A map that supports mutable lookups using keys of type `&Q`.
-    pub trait GetMut<Q: ?Sized = <Self as Base>::Key>: Get<Q> {
-        /// Returns a mutable reference to the value in the map corresponding to the given key.
+        /// Returns a mutable reference to the value in the map whose key is equivalent to the
+        /// given key.
+        ///
+        /// Returns `None` if the map contains no such key.
         fn get_mut(&mut self, key: &Q) -> Option<&mut Self::Value>;
     }
 
     /// A map that supports removals using keys of type `&Q`.
-    pub trait Remove<Q: ?Sized = <Self as Base>::Key>: GetMut<Q> {
-        /// Removes the given key from the map and returns its corresponding value, if any.
+    pub trait Remove<Q: ?Sized = <Self as Map>::Key>: Get<Q> + super::Remove {
+        /// Removes the key in the map that is equivalent to the given key and returns its value.
+        ///
+        /// Returns `None` if the map contains no such key.
         fn remove(&mut self, key: &Q) -> Option<Self::Value>;
     }
 
     /// A map that supports insertion.
-    pub trait Insert: Base + Extend<(<Self as Base>::Key, <Self as Base>::Value)> {
+    pub trait Insert: Map + super::Insert {
         /// Inserts the given key and value into the map and returns the previous value
         /// corresponding to the given key, if any.
-        // TODO: document replacement requirements
         fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value>;
     }
 
-    /// A map.
-    ///
-    /// This trait is implemented for all types that implement `{Len, Clear, Insert, Remove}`.
-    pub trait Map: Len + Clear + Insert + Remove {}
-
-    impl<M: ?Sized> Map for M where M: Len + Clear + Insert + Remove {}
-
-    /// A map that supports efficient in-place manipulation.
+    /// A map that supports efficient in-place modification.
     ///
     /// `'a` is the lifetime of the map.
-    pub trait EntryMap<'a>: Base {
+    pub trait EntryMap<'a>: Insert + Remove {
         /// The type of the map's occupied entries.
         type OccupiedEntry: OccupiedEntry<'a, Map = Self>;
 
@@ -148,21 +106,21 @@ pub mod map {
         type Map: ?Sized + EntryMap<'a, OccupiedEntry = Self>;
 
         /// Returns a reference to the entry's value.
-        fn get(&self) -> &<Self::Map as Base>::Value;
+        fn get(&self) -> &<Self::Map as Map>::Value;
 
         /// Returns a mutable reference to the entry's value.
-        fn get_mut(&mut self) -> &mut <Self::Map as Base>::Value;
+        fn get_mut(&mut self) -> &mut <Self::Map as Map>::Value;
 
         /// Returns a mutable reference to the entry's value with the same lifetime as the map.
-        fn into_mut(self) -> &'a mut <Self::Map as Base>::Value;
+        fn into_mut(self) -> &'a mut <Self::Map as Map>::Value;
 
         /// Replaces the entry's value with the given one and returns the old value.
-        fn insert(&mut self, value: <Self::Map as Base>::Value) -> <Self::Map as Base>::Value {
+        fn insert(&mut self, value: <Self::Map as Map>::Value) -> <Self::Map as Map>::Value {
             ::std::mem::replace(self.get_mut(), value)
         }
 
         /// Removes the entry from the map and returns its value.
-        fn remove(self) -> <Self::Map as Base>::Value;
+        fn remove(self) -> <Self::Map as Map>::Value;
     }
 
     /// A vacant map entry.
@@ -174,19 +132,19 @@ pub mod map {
 
         /// Inserts the entry into the map with the given value and returns a mutable reference to
         /// it with the same lifetime as the map.
-        fn insert(self, value: <Self::Map as Base>::Value) -> &'a mut <Self::Map as Base>::Value;
+        fn insert(self, value: <Self::Map as Map>::Value) -> &'a mut <Self::Map as Map>::Value;
     }
 
     /// A map entry.
     #[derive(Debug)]
-    pub enum Entry<'a, M: ?Sized> where M: EntryMap<'a> {
+    pub enum Entry<'a, M: ?Sized + EntryMap<'a>> {
         /// An occupied map entry.
         Occupied(M::OccupiedEntry),
         /// A vacant map entry.
         Vacant(M::VacantEntry),
     }
 
-    impl<'a, M: ?Sized> Entry<'a, M> where M: EntryMap<'a> {
+    impl<'a, M: ?Sized + EntryMap<'a>> Entry<'a, M> {
         /// Ensures the entry is occupied by inserting it with the given default value if it is
         /// vacant.
         pub fn or_insert(self, default: M::Value) -> &'a mut M::Value {
@@ -198,7 +156,7 @@ pub mod map {
 
         /// Ensures the entry is occupied by inserting it with the result of the given function if
         /// it is vacant.
-        pub fn or_insert_with<F>(self, f: F) -> &'a mut M::Value where F: FnOnce() -> M::Value {
+        pub fn or_insert_with<F: FnOnce() -> M::Value>(self, f: F) -> &'a mut M::Value {
             match self {
                 Entry::Occupied(e) => e.into_mut(),
                 Entry::Vacant(e) => e.insert(f()),
@@ -209,7 +167,7 @@ pub mod map {
     #[cfg(test)]
     pub fn count<M, I>(items: I) -> M
     where
-        M: Default + for<'a> map::EntryMap<'a, Value = usize>,
+        M: Default + for<'a> EntryMap<'a, Value = usize>,
         I: IntoIterator<Item = M::Key>,
     {
         let mut map = M::default();
@@ -220,42 +178,67 @@ pub mod map {
 
 pub mod set {
     //! Sets.
-    //!
-    //! A set is a collection whose items are distinguished according to some uniqueness criteria.
 
-    use super::*;
-
-    /// A trait that declares a set's item type.
-    ///
-    /// It is unusual to bound a type by this trait directly.
-    pub trait Base {
-        /// The set's item type.
-        type Item;
-    }
-
-    /// A set that supports lookups using items of type `&Q`.
-    pub trait Contains<Q: ?Sized = <Self as Base>::Item>: Base {
-        /// Checks if the set contains the given item.
-        fn contains(&self, item: &Q) -> bool;
-    }
-
-    /// A set that supports removals using items of type `&Q`.
-    pub trait Remove<Q: ?Sized = <Self as Base>::Item>: Contains<Q> {
-        /// Removes the given item from the set and returns `true` if the set contained it.
-        fn remove(&mut self, item: &Q) -> bool;
-    }
-
-    /// A set that supports insertion.
-    pub trait Insert: Base + Extend<<Self as Base>::Item> {
-        /// Inserts the given item into the set and returns `true` if the set did not contain it.
-        // TODO: document replacement requirements
-        fn insert(&mut self, item: Self::Item) -> bool;
-    }
+    use super::Collection;
 
     /// A set.
     ///
-    /// This trait is implemented for all types that implement `{Len, Clear, Insert, Remove}`.
-    pub trait Set: Len + Clear + Insert + Remove {}
+    /// A set is a collection whose items are distinguished according to some uniqueness criteria.
+    pub trait Set: Collection {
+        /// Checks if the set is disjoint from the given set.
+        fn is_disjoint(&self, other: &Self) -> bool where Self: Sized;
 
-    impl<S: ?Sized> Set for S where S: Len + Clear + Insert + Remove {}
+        /// Checks if the set is a subset of the given set.
+        fn is_subset(&self, other: &Self) -> bool where Self: Sized;
+
+        /// Checks if the set is a superset of the given set.
+        fn is_superset(&self, other: &Self) -> bool where Self: Sized {
+            other.is_subset(self)
+        }
+    }
+
+    /// A set that supports retrievals using items of type `&Q`.
+    pub trait Get<Q: ?Sized = <Self as Collection>::Item>: Set {
+        /// Checks if the set contains an item that is equivalent to the given item.
+        ///
+        /// This is equivalent to `self.get(item).is_some()`, but may be optimized.
+        fn contains(&self, item: &Q) -> bool {
+            self.get(item).is_some()
+        }
+
+        /// Returns the item in the set that is equivalent to the given item.
+        ///
+        /// Returns `None` if the set contains no such item.
+        fn get(&self, item: &Q) -> Option<&Self::Item>;
+    }
+
+    /// A set that supports removal using items of type `&Q`.
+    pub trait Remove<Q: ?Sized = <Self as Collection>::Item>: Get<Q> + super::Remove {
+        /// Removes the item in the set that is equivalent to the given item.
+        ///
+        /// Returns `true` if the set contained such an item, `false` otherwise.
+        ///
+        /// This is equivalent to `self.take(item).is_some()`, but may be optimized.
+        fn remove(&mut self, item: &Q) -> bool {
+            self.take(item).is_some()
+        }
+
+        /// Removes and returns the item in the set that is equivalent to the given item.
+        ///
+        /// Returns `None` if the set contained no such item.
+        fn take(&mut self, item: &Q) -> Option<Self::Item>;
+    }
+
+    /// A set that supports insertion.
+    pub trait Insert: Set + super::Insert {
+        /// Inserts the given item into the set without replacement.
+        ///
+        /// Returns `true` if the set contained an equivalent item, `false` otherwise.
+        fn insert(&mut self, item: Self::Item) -> bool;
+
+        /// Inserts the given item into the set with replacement.
+        ///
+        /// Returns the equivalent item if the set contained one, `None` otherwise.
+        fn replace(&mut self, item: Self::Item) -> Option<Self::Item>;
+    }
 }
