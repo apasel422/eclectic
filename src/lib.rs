@@ -33,6 +33,13 @@ pub trait Remove: Collection {
     fn clear(&mut self);
 }
 
+#[test]
+fn test_object_safety() {
+    let _: &Collection<Item = i32>;
+    let _: &Remove<Item = i32>;
+    let _: &Insert<Item = i32>;
+}
+
 pub mod map {
     //! Maps.
 
@@ -174,6 +181,14 @@ pub mod map {
         for item in items { *map.entry(item).or_insert(0) += 1; }
         map
     }
+
+    #[test]
+    fn test_object_safety() {
+        let _: &Map<Item = (i32, char), Key = i32, Value = char>;
+        let _: &Get<i32, Item = (i32, char), Key = i32, Value = char>;
+        let _: &Remove<i32, Item = (i32, char), Key = i32, Value = char>;
+        let _: &Insert<Item = (i32, char), Key = i32, Value = char>;
+    }
 }
 
 pub mod seq {
@@ -225,6 +240,14 @@ pub mod seq {
     pub trait Deque: Queue + Stack {
         /// Pushes the given item onto the front of the deque.
         fn push_front(&mut self, item: Self::Item);
+    }
+
+    #[test]
+    fn test_object_safety() {
+        let _: &PushBack<Item = i32>;
+        let _: &Queue<Item = i32>;
+        let _: &Stack<Item = i32>;
+        let _: &Deque<Item = i32>;
     }
 }
 
@@ -292,5 +315,13 @@ pub mod set {
         ///
         /// Returns the equivalent item if the set contained one, `None` otherwise.
         fn replace(&mut self, item: Self::Item) -> Option<Self::Item>;
+    }
+
+    #[test]
+    fn test_object_safety() {
+        let _: &Set<Item = i32>;
+        let _: &Get<i32, Item = i32>;
+        let _: &Remove<i32, Item = i32>;
+        let _: &Insert<Item = i32>;
     }
 }
