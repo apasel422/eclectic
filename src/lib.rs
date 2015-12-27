@@ -1,6 +1,7 @@
 //! Collection traits for generic programming.
 
 #![deny(missing_docs)]
+#![feature(linked_list_extras)]
 #![feature(set_recovery)]
 
 mod std_impls;
@@ -38,6 +39,99 @@ fn test_object_safety() {
     let _: &Collection<Item = i32>;
     let _: &Remove<Item = i32>;
     let _: &Insert<Item = i32>;
+}
+
+pub mod list {
+    //! Lists.
+
+    /// A list.
+    pub trait List: super::Collection {
+        /// Returns a reference to the item at the given index.
+        ///
+        /// Returns `None` if `index >= self.len()`.
+        fn get(&self, index: usize) -> Option<&Self::Item>;
+
+        /// Returns a mutable reference to the item at the given index.
+        ///
+        /// Returns `None` if `index >= self.len()`.
+        fn get_mut(&mut self, index: usize) -> Option<&mut Self::Item>;
+
+        /// Swaps the items at the given indices in the list.
+        ///
+        /// # Panics
+        ///
+        /// Panics if `i >= self.len() || j >= self.len()`.
+        fn swap(&mut self, i: usize, j: usize);
+    }
+
+    /// A list that supports insertion.
+    pub trait Insert: List {
+        /// Inserts the given item into the list at the given index.
+        ///
+        /// All items after the given index are shifted one index to the right.
+        ///
+        /// # Panics
+        ///
+        /// Panics if `index > self.len()`.
+        fn insert(&mut self, index: usize, item: Self::Item);
+
+        /// Pushes the given item onto the back of the list.
+        fn push(&mut self, item: Self::Item) {
+            let len = self.len();
+            self.insert(len, item);
+        }
+    }
+
+    /// A list that supports removal.
+    pub trait Remove: List {
+        /// Removes the last item in the list.
+        ///
+        /// Returns `None` if the list is empty.
+        fn pop(&mut self) -> Option<Self::Item> {
+            if self.is_empty() {
+                None
+            } else {
+                let len = self.len();
+                self.remove(len - 1)
+            }
+        }
+
+        /// Removes the item at the given index from the list and returns it.
+        ///
+        /// Returns `None` if `index >= self.len()`.
+        fn remove(&mut self, index: usize) -> Option<Self::Item>;
+
+        /// Splits the list in two at the given index.
+        ///
+        /// After this method returns, `self` contains the items `[0, index)` and the returned list
+        /// contains the items `[index, len)`.
+        ///
+        /// # Panics
+        ///
+        /// Panics if `index > self.len()`.
+        fn split_off(&mut self, index: usize) -> Self where Self: Sized;
+
+        /// Removes the item at the given index from the list and returns it, replacing it with the
+        /// last item in the list.
+        ///
+        /// Returns `None` if `index >= self.len()`.
+        fn swap_remove(&mut self, index: usize) -> Option<Self::Item> {
+            if index >= self.len() {
+                None
+            } else {
+                let len = self.len();
+                self.swap(index, len - 1);
+                self.pop()
+            }
+        }
+    }
+
+    #[test]
+    fn test_object_safety() {
+        let _: &List<Item = i32>;
+        let _: &Insert<Item = i32>;
+        let _: &Remove<Item = i32>;
+    }
 }
 
 pub mod map {

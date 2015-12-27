@@ -4,12 +4,18 @@ use std::borrow::Borrow;
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedList, VecDeque};
 use std::collections::{btree_map, hash_map};
 use std::hash::Hash;
-use std::mem::replace;
+use std::mem::{replace, swap};
 
 impl<T> Collection for [T] {
     type Item = T;
     fn is_empty(&self) -> bool { self.is_empty() }
     fn len(&self) -> usize { self.len() }
+}
+
+impl<T> list::List for [T] {
+    fn get(&self, index: usize) -> Option<&T> { self.get(index) }
+    fn get_mut(&mut self, index: usize) -> Option<&mut T> { self.get_mut(index) }
+    fn swap(&mut self, i: usize, j: usize) { self.swap(i, j); }
 }
 
 impl<T: Ord> Collection for BinaryHeap<T> {
@@ -246,6 +252,41 @@ impl<T> Remove for LinkedList<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
+impl<T> list::List for LinkedList<T> {
+    fn get(&self, index: usize) -> Option<&T> { self.iter().nth(index) }
+    fn get_mut(&mut self, index: usize) -> Option<&mut T> { self.iter_mut().nth(index) }
+
+    fn swap(&mut self, i: usize, j: usize) {
+        assert!(i < self.len() && j < self.len());
+
+        let (i, j) =
+            if i < j {
+                (i, j - i - 1)
+            } else if i > j {
+                (j, i - j - 1)
+            } else {
+                return;
+            };
+
+        let mut it = self.iter_mut().skip(i);
+        let i = it.next().unwrap();
+        let mut it = it.skip(j);
+        let j = it.next().unwrap();
+        swap(i, j);
+    }
+}
+
+impl<T> list::Insert for LinkedList<T> {
+    fn insert(&mut self, index: usize, item: T) {
+        assert!(index <= self.len());
+        let mut it = self.iter_mut();
+        for _ in 0..index { it.next(); }
+        it.insert_next(item);
+    }
+
+    fn push(&mut self, item: T) { self.push_back(item); }
+}
+
 impl<T> seq::PushBack for LinkedList<T> {
     fn push_back(&mut self, item: T) { self.push_back(item); }
 }
@@ -280,6 +321,39 @@ impl<T> Remove for Vec<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
+impl<T> list::List for Vec<T> {
+    fn get(&self, index: usize) -> Option<&T> { <[T]>::get(self, index) }
+    fn get_mut(&mut self, index: usize) -> Option<&mut T> { <[T]>::get_mut(self, index) }
+    fn swap(&mut self, i: usize, j: usize) { <[T]>::swap(self, i, j); }
+}
+
+impl<T> list::Insert for Vec<T> {
+    fn insert(&mut self, index: usize, item: T) { self.insert(index, item); }
+    fn push(&mut self, item: T) { self.push(item); }
+}
+
+impl<T> list::Remove for Vec<T> {
+    fn pop(&mut self) -> Option<T> { self.pop() }
+
+    fn remove(&mut self, index: usize) -> Option<T> {
+        if index < self.len() {
+            Some(self.remove(index))
+        } else {
+            None
+        }
+    }
+
+    fn split_off(&mut self, index: usize) -> Self { self.split_off(index) }
+
+    fn swap_remove(&mut self, index: usize) -> Option<T> {
+        if index < self.len() {
+            Some(self.swap_remove(index))
+        } else {
+            None
+        }
+    }
+}
+
 impl<T> seq::PushBack for Vec<T> {
     fn push_back(&mut self, item: T) { self.push(item); }
 }
@@ -302,6 +376,24 @@ impl<T> Insert for VecDeque<T> {
 
 impl<T> Remove for VecDeque<T> {
     fn clear(&mut self) { self.clear(); }
+}
+
+impl<T> list::List for VecDeque<T> {
+    fn get(&self, index: usize) -> Option<&T> { self.get(index) }
+    fn get_mut(&mut self, index: usize) -> Option<&mut T> { self.get_mut(index) }
+    fn swap(&mut self, i: usize, j: usize) { self.swap(i, j); }
+}
+
+impl<T> list::Insert for VecDeque<T> {
+    fn insert(&mut self, index: usize, item: T) { self.insert(index, item); }
+    fn push(&mut self, item: T) { self.push_back(item); }
+}
+
+impl<T> list::Remove for VecDeque<T> {
+    fn pop(&mut self) -> Option<T> { self.pop_back() }
+    fn remove(&mut self, index: usize) -> Option<T> { self.remove(index) }
+    fn split_off(&mut self, index: usize) -> Self { self.split_off(index) }
+    fn swap_remove(&mut self, index: usize) -> Option<T> { self.swap_remove_back(index) }
 }
 
 impl<T> seq::PushBack for VecDeque<T> {
@@ -337,4 +429,26 @@ fn test() {
     assert_eq!(counts[&'a'], 3);
     assert_eq!(counts[&'b'], 2);
     assert_eq!(counts[&'c'], 1);
+}
+
+#[test]
+fn test_linked_list() {
+    use list::{Insert, List};
+
+    let mut l: LinkedList<_> = vec![1, 2, 3].into_iter().collect();
+    assert_eq!(l.get(1), Some(&2));
+    assert_eq!(l.get_mut(2), Some(&mut 3));
+    assert_eq!(l.get(3), None);
+
+    l.swap(0, 1);
+    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [2, 1, 3]);
+    l.swap(0, 0);
+    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [2, 1, 3]);
+    l.swap(1, 0);
+    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [1, 2, 3]);
+
+    l.insert(0, 0);
+    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [0, 1, 2, 3]);
+    l.insert(4, 4);
+    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [0, 1, 2, 3, 4]);
 }
