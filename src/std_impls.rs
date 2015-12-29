@@ -439,14 +439,14 @@ fn test_linked_list() {
     assert_eq!(l.get(3), None);
 
     l.swap(0, 1);
-    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [2, 1, 3]);
+    assert!(l.iter().eq(&[2, 1, 3]));
     l.swap(0, 0);
-    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [2, 1, 3]);
+    assert!(l.iter().eq(&[2, 1, 3]));
     l.swap(1, 0);
-    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [1, 2, 3]);
+    assert!(l.iter().eq(&[1, 2, 3]));
 
     l.insert(0, 0);
-    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [0, 1, 2, 3]);
+    assert!(l.iter().eq(&[0, 1, 2, 3]));
     l.insert(4, 4);
-    assert_eq!(l.iter().cloned().collect::<Vec<_>>(), [0, 1, 2, 3, 4]);
+    assert!(l.iter().eq(&[0, 1, 2, 3, 4]));
 }
