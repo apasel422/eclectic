@@ -15,6 +15,12 @@ impl<T> Collection for [T] {
 impl<T> list::List for [T] {
     fn get(&self, index: usize) -> Option<&T> { self.get(index) }
     fn get_mut(&mut self, index: usize) -> Option<&mut T> { self.get_mut(index) }
+    fn iter<'a>(&'a self) -> Box<Iterator<Item = &'a T> + 'a> { Box::new(self.iter()) }
+
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> {
+        Box::new(self.iter_mut())
+    }
+
     fn swap(&mut self, i: usize, j: usize) { self.swap(i, j); }
 }
 
@@ -55,6 +61,14 @@ impl<K: Ord, V> map::Map for BTreeMap<K, V> {
             btree_map::Entry::Occupied(e) => map::Entry::Occupied(Box::new(e)),
             btree_map::Entry::Vacant(e) => map::Entry::Vacant(Box::new(e)),
         }
+    }
+
+    fn iter<'a>(&'a self) -> Box<Iterator<Item = (&'a K, &'a V)> + 'a> {
+        Box::new(self.iter())
+    }
+
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = (&'a K, &'a mut V)> + 'a> {
+        Box::new(self.iter_mut())
     }
 }
 
@@ -116,6 +130,10 @@ impl<T: Ord> set::Set for BTreeSet<T> {
     fn is_superset(&self, other: &Self) -> bool {
         self.is_superset(other)
     }
+
+    fn iter<'a>(&'a self) -> Box<Iterator<Item = &'a T> + 'a> {
+        Box::new(self.iter())
+    }
 }
 
 impl<T: Ord + Borrow<Q>, Q: ?Sized + Ord> set::Get<Q> for BTreeSet<T> {
@@ -156,6 +174,14 @@ impl<K: Eq + Hash, V> map::Map for HashMap<K, V> {
             hash_map::Entry::Occupied(e) => map::Entry::Occupied(Box::new(e)),
             hash_map::Entry::Vacant(e) => map::Entry::Vacant(Box::new(e)),
         }
+    }
+
+    fn iter<'a>(&'a self) -> Box<Iterator<Item = (&'a K, &'a V)> + 'a> {
+        Box::new(self.iter())
+    }
+
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = (&'a K, &'a mut V)> + 'a> {
+        Box::new(self.iter_mut())
     }
 }
 
@@ -217,6 +243,10 @@ impl<T: Eq + Hash> set::Set for HashSet<T> {
     fn is_superset(&self, other: &Self) -> bool {
         self.is_superset(other)
     }
+
+    fn iter<'a>(&'a self) -> Box<Iterator<Item = &'a T> + 'a> {
+        Box::new(self.iter())
+    }
 }
 
 impl<T: Eq + Hash + Borrow<Q>, Q: ?Sized + Eq + Hash> set::Get<Q> for HashSet<T> {
@@ -253,6 +283,12 @@ impl<T> collection::Remove for LinkedList<T> {
 impl<T> list::List for LinkedList<T> {
     fn get(&self, index: usize) -> Option<&T> { self.iter().nth(index) }
     fn get_mut(&mut self, index: usize) -> Option<&mut T> { self.iter_mut().nth(index) }
+
+    fn iter<'a>(&'a self) -> Box<Iterator<Item = &'a T> + 'a> { Box::new(self.iter()) }
+
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> {
+        Box::new(self.iter_mut())
+    }
 
     fn swap(&mut self, i: usize, j: usize) {
         assert!(i < self.len() && j < self.len());
@@ -322,6 +358,15 @@ impl<T> collection::Remove for Vec<T> {
 impl<T> list::List for Vec<T> {
     fn get(&self, index: usize) -> Option<&T> { <[T]>::get(self, index) }
     fn get_mut(&mut self, index: usize) -> Option<&mut T> { <[T]>::get_mut(self, index) }
+
+    fn iter<'a>(&'a self) -> Box<Iterator<Item = &'a T> + 'a> {
+        Box::new(<[T]>::iter(self))
+    }
+
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> {
+        Box::new(<[T]>::iter_mut(self))
+    }
+
     fn swap(&mut self, i: usize, j: usize) { <[T]>::swap(self, i, j); }
 }
 
@@ -383,6 +428,14 @@ impl<T> collection::Remove for VecDeque<T> {
 impl<T> list::List for VecDeque<T> {
     fn get(&self, index: usize) -> Option<&T> { self.get(index) }
     fn get_mut(&mut self, index: usize) -> Option<&mut T> { self.get_mut(index) }
+
+    fn iter<'a>(&'a self) -> Box<Iterator<Item = &'a T> + 'a> {
+        Box::new(self.iter())
+    }
+
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> {
+        Box::new(self.iter_mut())
+    }
     fn swap(&mut self, i: usize, j: usize) { self.swap(i, j); }
 }
 

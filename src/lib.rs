@@ -62,6 +62,16 @@ pub mod list {
         /// Returns `None` if `index >= self.len()`.
         fn get_mut(&mut self, index: usize) -> Option<&mut Self::Item>;
 
+        /// Returns an iterator that yields references to the list's items.
+        ///
+        /// The iteration order is the order of the items in the list.
+        fn iter<'a>(&'a self) -> Box<Iterator<Item = &'a Self::Item> + 'a>;
+
+        /// Returns an iterator that yields mutable references to the list's items.
+        ///
+        /// The iteration order is the order of the items in the list.
+        fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut Self::Item> + 'a>;
+
         /// Swaps the items at the given indices in the list.
         ///
         /// # Panics
@@ -152,6 +162,20 @@ pub mod map {
         /// Returns the entry in the map corresponding to the given key.
         fn entry<'a>(&'a mut self, key: Self::Key) -> Entry<'a, Self::Key, Self::Value>
             where Self: Insert + Remove;
+
+        /// Returns an iterator that yields references to the map's keys and references to their
+        /// values.
+        ///
+        /// The iteration order is unspecified, but subtraits may place a requirement on it.
+        fn iter<'a>(&'a self) -> Box<Iterator<Item = (&'a Self::Key, &'a Self::Value)> + 'a>;
+
+        /// Returns an iterator that yields references to the map's keys and mutable references to
+        /// their values.
+        ///
+        /// The iteration order is unspecified, but subtraits may place a requirement on it.
+        fn iter_mut<'a>(&'a mut self) ->
+            Box<Iterator<Item = (&'a Self::Key, &'a mut Self::Value)> + 'a>;
+
     }
 
     /// A map that supports retrievals using keys of type `&Q`.
@@ -357,6 +381,11 @@ pub mod set {
         fn is_superset(&self, other: &Self) -> bool where Self: Sized {
             other.is_subset(self)
         }
+
+        /// Returns an iterator that yields references to the set's items.
+        ///
+        /// The iteration order is unspecified, but subtraits may place a requirement on it.
+        fn iter<'a>(&'a self) -> Box<Iterator<Item = &'a Self::Item> + 'a>;
     }
 
     /// A set that supports retrievals using items of type `&Q`.
