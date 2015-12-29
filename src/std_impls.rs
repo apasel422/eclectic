@@ -49,6 +49,13 @@ impl<K: Ord, V> collection::Remove for BTreeMap<K, V> {
 impl<K: Ord, V> map::Map for BTreeMap<K, V> {
     type Key = K;
     type Value = V;
+
+    fn entry<'a>(&'a mut self, key: Self::Key) -> map::Entry<'a, Self::Key, Self::Value> {
+        match self.entry(key) {
+            btree_map::Entry::Occupied(e) => map::Entry::Occupied(Box::new(e)),
+            btree_map::Entry::Vacant(e) => map::Entry::Vacant(Box::new(e)),
+        }
+    }
 }
 
 impl<K: Ord + Borrow<Q>, V, Q: ?Sized + Ord> map::Get<Q> for BTreeMap<K, V> {
@@ -65,30 +72,22 @@ impl<K: Ord, V> map::Insert for BTreeMap<K, V> {
     fn insert(&mut self, key: K, value: V) -> Option<V> { self.insert(key, value) }
 }
 
-impl<'a, K: 'a + Ord, V: 'a> map::EntryMap<'a> for BTreeMap<K, V> {
-    type OccupiedEntry = btree_map::OccupiedEntry<'a, K, V>;
-    type VacantEntry = btree_map::VacantEntry<'a, K, V>;
-
-    fn entry(&'a mut self, key: K) -> map::Entry<Self> {
-        match self.entry(key) {
-            btree_map::Entry::Occupied(e) => map::Entry::Occupied(e),
-            btree_map::Entry::Vacant(e) => map::Entry::Vacant(e),
-        }
-    }
-}
-
-impl<'a, K: 'a + Ord, V: 'a> map::OccupiedEntry<'a> for btree_map::OccupiedEntry<'a, K, V> {
-    type Map = BTreeMap<K, V>;
+impl<'a, K: 'a + Ord, V: 'a> map::OccupiedEntry for btree_map::OccupiedEntry<'a, K, V> {
+    type Key = K;
+    type Value = V;
+    type MutValue = &'a mut V;
     fn get(&self) -> &V { self.get() }
     fn get_mut(&mut self) -> &mut V { self.get_mut() }
-    fn into_mut(self) -> &'a mut V { self.into_mut() }
+    fn into_mut(self: Box<Self>) -> &'a mut V { (*self).into_mut() }
     fn insert(&mut self, value: V) -> V { self.insert(value) }
-    fn remove(self) -> V { self.remove() }
+    fn remove(self: Box<Self>) -> V { (*self).remove() }
 }
 
-impl<'a, K: 'a + Ord, V: 'a> map::VacantEntry<'a> for btree_map::VacantEntry<'a, K, V> {
-    type Map = BTreeMap<K, V>;
-    fn insert(self, value: V) -> &'a mut V { self.insert(value) }
+impl<'a, K: 'a + Ord, V: 'a> map::VacantEntry for btree_map::VacantEntry<'a, K, V> {
+    type Key = K;
+    type Value = V;
+    type MutValue = &'a mut V;
+    fn insert(self: Box<Self>, value: V) -> &'a mut V { (*self).insert(value) }
 }
 
 impl<T: Ord> Collection for BTreeSet<T> {
@@ -151,6 +150,13 @@ impl<K: Eq + Hash, V> collection::Remove for HashMap<K, V> {
 impl<K: Eq + Hash, V> map::Map for HashMap<K, V> {
     type Key = K;
     type Value = V;
+
+    fn entry<'a>(&'a mut self, key: Self::Key) -> map::Entry<'a, Self::Key, Self::Value> {
+        match self.entry(key) {
+            hash_map::Entry::Occupied(e) => map::Entry::Occupied(Box::new(e)),
+            hash_map::Entry::Vacant(e) => map::Entry::Vacant(Box::new(e)),
+        }
+    }
 }
 
 impl<K: Eq + Hash + Borrow<Q>, V, Q: ?Sized + Eq + Hash> map::Get<Q> for HashMap<K, V> {
@@ -167,30 +173,22 @@ impl<K: Eq + Hash, V> map::Insert for HashMap<K, V> {
     fn insert(&mut self, key: K, value: V) -> Option<V> { self.insert(key, value) }
 }
 
-impl<'a, K: 'a + Eq + Hash, V: 'a> map::EntryMap<'a> for HashMap<K, V> {
-    type OccupiedEntry = hash_map::OccupiedEntry<'a, K, V>;
-    type VacantEntry = hash_map::VacantEntry<'a, K, V>;
-
-    fn entry(&'a mut self, key: K) -> map::Entry<Self> {
-        match self.entry(key) {
-            hash_map::Entry::Occupied(e) => map::Entry::Occupied(e),
-            hash_map::Entry::Vacant(e) => map::Entry::Vacant(e),
-        }
-    }
-}
-
-impl<'a, K: 'a + Eq + Hash, V: 'a> map::OccupiedEntry<'a> for hash_map::OccupiedEntry<'a, K, V> {
-    type Map = HashMap<K, V>;
+impl<'a, K: 'a + Eq + Hash, V: 'a> map::OccupiedEntry for hash_map::OccupiedEntry<'a, K, V> {
+    type Key = K;
+    type Value = V;
+    type MutValue = &'a mut V;
     fn get(&self) -> &V { self.get() }
     fn get_mut(&mut self) -> &mut V { self.get_mut() }
-    fn into_mut(self) -> &'a mut V { self.into_mut() }
+    fn into_mut(self: Box<Self>) -> &'a mut V { (*self).into_mut() }
     fn insert(&mut self, value: V) -> V { self.insert(value) }
-    fn remove(self) -> V { self.remove() }
+    fn remove(self: Box<Self>) -> V { (*self).remove() }
 }
 
-impl<'a, K: 'a + Eq + Hash, V: 'a> map::VacantEntry<'a> for hash_map::VacantEntry<'a, K, V> {
-    type Map = HashMap<K, V>;
-    fn insert(self, value: V) -> &'a mut V { self.insert(value) }
+impl<'a, K: 'a + Eq + Hash, V: 'a> map::VacantEntry for hash_map::VacantEntry<'a, K, V> {
+    type Key = K;
+    type Value = V;
+    type MutValue = &'a mut V;
+    fn insert(self: Box<Self>, value: V) -> &'a mut V { (*self).insert(value) }
 }
 
 impl<T: Eq + Hash> Collection for HashSet<T> {
