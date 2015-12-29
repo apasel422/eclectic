@@ -42,6 +42,14 @@ pub mod collection {
     pub trait Remove: Collection {
         /// Removes all items from the collection.
         fn clear(&mut self);
+
+        /// Removes all items from the collection and returns an iterator that yields them.
+        ///
+        /// All items are removed even if the iterator is not exhausted. However, the behavior of
+        /// this method is unspecified if the iterator is leaked.
+        ///
+        /// The iteration order is unspecified, but subtraits may place a requirement on it.
+        fn drain<'a>(&'a mut self) -> Box<Iterator<Item = Self::Item> + 'a>;
     }
 }
 

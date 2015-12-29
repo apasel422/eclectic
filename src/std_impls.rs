@@ -36,6 +36,7 @@ impl<T: Ord> collection::Insert for BinaryHeap<T> {
 
 impl<T: Ord> collection::Remove for BinaryHeap<T> {
     fn clear(&mut self) { self.clear(); }
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = T> + 'a> { Box::new(self.drain()) }
 }
 
 impl<K: Ord, V> Collection for BTreeMap<K, V> {
@@ -50,6 +51,10 @@ impl<K: Ord, V> collection::Insert for BTreeMap<K, V> {
 
 impl<K: Ord, V> collection::Remove for BTreeMap<K, V> {
     fn clear(&mut self) { self.clear(); }
+
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = (K, V)> + 'a> {
+        Box::new(replace(self, Self::new()).into_iter())
+    }
 }
 
 impl<K: Ord, V> map::Map for BTreeMap<K, V> {
@@ -116,6 +121,10 @@ impl<T: Ord> collection::Insert for BTreeSet<T> {
 
 impl<T: Ord> collection::Remove for BTreeSet<T> {
     fn clear(&mut self) { self.clear(); }
+
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = T> + 'a> {
+        Box::new(replace(self, Self::new()).into_iter())
+    }
 }
 
 impl<T: Ord> set::Set for BTreeSet<T> {
@@ -163,6 +172,10 @@ impl<K: Eq + Hash, V> collection::Insert for HashMap<K, V> {
 
 impl<K: Eq + Hash, V> collection::Remove for HashMap<K, V> {
     fn clear(&mut self) { self.clear(); }
+
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = (K, V)> + 'a> {
+        Box::new(self.drain())
+    }
 }
 
 impl<K: Eq + Hash, V> map::Map for HashMap<K, V> {
@@ -229,6 +242,10 @@ impl<T: Eq + Hash> collection::Insert for HashSet<T> {
 
 impl<T: Eq + Hash> collection::Remove for HashSet<T> {
     fn clear(&mut self) { self.clear(); }
+
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = T> + 'a> {
+        Box::new(self.drain())
+    }
 }
 
 impl<T: Eq + Hash> set::Set for HashSet<T> {
@@ -278,6 +295,10 @@ impl<T> collection::Insert for LinkedList<T> {
 
 impl<T> collection::Remove for LinkedList<T> {
     fn clear(&mut self) { self.clear(); }
+
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = T> + 'a> {
+        Box::new(replace(self, Self::new()).into_iter())
+    }
 }
 
 impl<T> list::List for LinkedList<T> {
@@ -353,6 +374,10 @@ impl<T> collection::Insert for Vec<T> {
 
 impl<T> collection::Remove for Vec<T> {
     fn clear(&mut self) { self.clear(); }
+
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = T> + 'a> {
+        Box::new(self.drain(..))
+    }
 }
 
 impl<T> list::List for Vec<T> {
@@ -423,6 +448,10 @@ impl<T> collection::Insert for VecDeque<T> {
 
 impl<T> collection::Remove for VecDeque<T> {
     fn clear(&mut self) { self.clear(); }
+
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = T> + 'a> {
+        Box::new(self.drain(..))
+    }
 }
 
 impl<T> list::List for VecDeque<T> {
