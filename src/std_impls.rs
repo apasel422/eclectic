@@ -5,6 +5,7 @@ use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedL
 use std::collections::{btree_map, hash_map};
 use std::hash::Hash;
 use std::mem::{replace, swap};
+use std::ops::Range;
 
 impl<T> Collection for [T] {
     type Item = T;
@@ -401,6 +402,10 @@ impl<T> list::Insert for Vec<T> {
 }
 
 impl<T> list::Remove for Vec<T> {
+    fn drain_range<'a>(&'a mut self, range: Range<usize>) -> Box<Iterator<Item = T> + 'a> {
+        Box::new(self.drain(range))
+    }
+
     fn pop(&mut self) -> Option<T> { self.pop() }
 
     fn remove(&mut self, index: usize) -> Option<T> {
@@ -474,6 +479,10 @@ impl<T> list::Insert for VecDeque<T> {
 }
 
 impl<T> list::Remove for VecDeque<T> {
+    fn drain_range<'a>(&'a mut self, range: Range<usize>) -> Box<Iterator<Item = T> + 'a> {
+        Box::new(self.drain(range))
+    }
+
     fn pop(&mut self) -> Option<T> { self.pop_back() }
     fn remove(&mut self, index: usize) -> Option<T> { self.remove(index) }
     fn split_off(&mut self, index: usize) -> Self { self.split_off(index) }

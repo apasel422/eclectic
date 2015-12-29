@@ -58,6 +58,8 @@ pub mod list {
 
     use super::*;
 
+    use std::ops::Range;
+
     /// A list.
     pub trait List: Collection {
         /// Returns a reference to the item at the given index in the list.
@@ -110,6 +112,16 @@ pub mod list {
 
     /// A list that supports removal.
     pub trait Remove: List {
+        /// Removes the items in the list that lie in the given range and returns an iterator that
+        /// yields them.
+        ///
+        /// All items in the range are removed even if the iterator is not exhausted. However, the
+        /// behavior of this method is unspecified if the iterator is leaked.
+        ///
+        /// The iteration order is the order of the items in the list.
+        fn drain_range<'a>(&'a mut self, range: Range<usize>) ->
+            Box<Iterator<Item = Self::Item> + 'a>;
+
         /// Removes the last item in the list and returns it.
         ///
         /// Returns `None` if the list is empty.
