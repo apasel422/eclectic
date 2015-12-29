@@ -51,12 +51,12 @@ pub mod list {
 
     /// A list.
     pub trait List: Collection {
-        /// Returns a reference to the item at the given index.
+        /// Returns a reference to the item at the given index in the list.
         ///
         /// Returns `None` if `index >= self.len()`.
         fn get(&self, index: usize) -> Option<&Self::Item>;
 
-        /// Returns a mutable reference to the item at the given index.
+        /// Returns a mutable reference to the item at the given index in the list.
         ///
         /// Returns `None` if `index >= self.len()`.
         fn get_mut(&mut self, index: usize) -> Option<&mut Self::Item>;
@@ -81,6 +81,8 @@ pub mod list {
         fn insert(&mut self, index: usize, item: Self::Item);
 
         /// Pushes the given item onto the back of the list.
+        ///
+        /// This is equivalent to `self.insert(self.len(), item)`, but may be optimized.
         fn push(&mut self, item: Self::Item) {
             let len = self.len();
             self.insert(len, item);
@@ -89,9 +91,11 @@ pub mod list {
 
     /// A list that supports removal.
     pub trait Remove: List {
-        /// Removes the last item in the list.
+        /// Removes the last item in the list and returns it.
         ///
         /// Returns `None` if the list is empty.
+        ///
+        /// This is equivalent to `self.remove(self.len() - 1)`, but may be optimized.
         fn pop(&mut self) -> Option<Self::Item> {
             if self.is_empty() {
                 None
@@ -101,22 +105,22 @@ pub mod list {
             }
         }
 
-        /// Removes the item at the given index from the list and returns it.
+        /// Removes the item at the given index in the list and returns it.
         ///
         /// Returns `None` if `index >= self.len()`.
         fn remove(&mut self, index: usize) -> Option<Self::Item>;
 
         /// Splits the list in two at the given index.
         ///
-        /// After this method returns, `self` contains the items `[0, index)` and the returned list
-        /// contains the items `[index, len)`.
+        /// After this method returns, `self` contains the items `0..index` and the returned list
+        /// contains the items `index..self.len()`.
         ///
         /// # Panics
         ///
         /// Panics if `index > self.len()`.
         fn split_off(&mut self, index: usize) -> Self where Self: Sized;
 
-        /// Removes the item at the given index from the list and returns it, replacing it with the
+        /// Removes the item at the given index in the list and returns it, replacing it with the
         /// last item in the list.
         ///
         /// Returns `None` if `index >= self.len()`.
@@ -153,7 +157,7 @@ pub mod map {
             where Self: Insert + Remove;
     }
 
-    /// A map that supports lookups using keys of type `&Q`.
+    /// A map that supports retrievals using keys of type `&Q`.
     pub trait Get<Q: ?Sized = <Self as Map>::Key>: Map {
         /// Checks if the map contains a key that is equivalent to the given key.
         ///
@@ -162,13 +166,14 @@ pub mod map {
             self.get(key).is_some()
         }
 
-        /// Returns a reference to the value in the map whose key is equivalent to the given key.
+        /// Returns a reference to the value of the key in the map that is equivalent to the given
+        /// key.
         ///
         /// Returns `None` if the map contains no such key.
         fn get(&self, key: &Q) -> Option<&Self::Value>;
 
-        /// Returns a mutable reference to the value in the map whose key is equivalent to the
-        /// given key.
+        /// Returns a mutable reference to the value of the key in the map that is equivalent to
+        /// the given key.
         ///
         /// Returns `None` if the map contains no such key.
         fn get_mut(&mut self, key: &Q) -> Option<&mut Self::Value>;
@@ -184,14 +189,13 @@ pub mod map {
 
     /// A map that supports insertion.
     pub trait Insert: Map + collection::Insert {
-        /// Inserts the given key and value into the map and returns the previous value
-        /// corresponding to the given key, if any.
+        /// Inserts the given key and value into the map without replacing an equivalent key.
+        ///
+        /// Returns the equivalent key's value if the map contained one, `None` otherwise.
         fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value>;
     }
 
     /// An occupied map entry.
-    ///
-    /// `'a` is the lifetime of the map.
     pub trait OccupiedEntry {
         /// The type of the entry's key.
         type Key;
@@ -199,7 +203,8 @@ pub mod map {
         /// The type of the entry's value.
         type Value;
 
-        /// The return type of `into_mut`.
+        /// The type of the mutable reference to the entry's value with the same lifetime as the
+        /// map.
         type MutValue;
 
         /// Returns a reference to the entry's value.
@@ -221,8 +226,6 @@ pub mod map {
     }
 
     /// A vacant map entry.
-    ///
-    /// `'a` is the lifetime of the map.
     pub trait VacantEntry {
         /// The type of the entry's key.
         type Key;
@@ -230,11 +233,13 @@ pub mod map {
         /// The type of the entry's value.
         type Value;
 
-        /// The return type of `insert`.
+        /// The type of the mutable reference to the entry's value with the same lifetime as the
+        /// map.
         type MutValue;
 
-        /// Inserts the entry into the map with the given value and returns a mutable reference to
-        /// it with the same lifetime as the map.
+        /// Inserts the entry into the map with the given value.
+        ///
+        /// Returns a mutable reference to the value with the same lifetime as the map.
         fn insert(self: Box<Self>, value: Self::Value) -> Self::MutValue;
     }
 
@@ -247,8 +252,10 @@ pub mod map {
     }
 
     impl<'a, K: 'a, V: 'a> Entry<'a, K, V> {
-        /// Ensures the entry is occupied by inserting it with the given default value if it is
-        /// vacant.
+        /// Ensures that the entry is occupied by inserting it into the map with the given value if
+        /// it is vacant.
+        ///
+        /// Returns a mutable reference to the value with the same lifetime as the map.
         pub fn or_insert(self, default: V) -> &'a mut V {
             match self {
                 Entry::Occupied(e) => e.into_mut(),
@@ -256,8 +263,10 @@ pub mod map {
             }
         }
 
-        /// Ensures the entry is occupied by inserting it with the result of the given function if
-        /// it is vacant.
+        /// Ensures that the entry is occupied by inserting it into the map with the result of the
+        /// given function if it is vacant.
+        ///
+        /// Returns a mutable reference to the value with the same lifetime as the map.
         pub fn or_insert_with<F: FnOnce() -> V>(self, f: F) -> &'a mut V {
             match self {
                 Entry::Occupied(e) => e.into_mut(),
@@ -301,7 +310,7 @@ pub mod seq {
         /// Returns `None` if the queue is empty.
         fn front_mut(&mut self) -> Option<&mut Self::Item>;
 
-        /// Removes and returns the item at the front of the queue.
+        /// Removes the item at the front of the queue and returns it.
         ///
         /// Returns `None` if the queue is empty.
         fn pop_front(&mut self) -> Option<Self::Item>;
@@ -319,7 +328,7 @@ pub mod seq {
         /// Returns `None` if the stack is empty.
         fn back_mut(&mut self) -> Option<&mut Self::Item>;
 
-        /// Removes and returns the item at the back of the stack.
+        /// Removes the item at the back of the stack and returns it.
         ///
         /// Returns `None` if the stack is empty.
         fn pop_back(&mut self) -> Option<Self::Item>;
@@ -362,7 +371,7 @@ pub mod set {
             self.get(item).is_some()
         }
 
-        /// Returns the item in the set that is equivalent to the given item.
+        /// Returns a reference to the item in the set that is equivalent to the given item.
         ///
         /// Returns `None` if the set contains no such item.
         fn get(&self, item: &Q) -> Option<&Self::Item>;
@@ -379,7 +388,7 @@ pub mod set {
             self.take(item).is_some()
         }
 
-        /// Removes and returns the item in the set that is equivalent to the given item.
+        /// Removes the item in the set that is equivalent to the given item and returns it.
         ///
         /// Returns `None` if the set contained no such item.
         fn take(&mut self, item: &Q) -> Option<Self::Item>;
@@ -387,12 +396,12 @@ pub mod set {
 
     /// A set that supports insertion.
     pub trait Insert: Set + collection::Insert {
-        /// Inserts the given item into the set without replacement.
+        /// Inserts the given item into the set without replacing an equivalent item.
         ///
-        /// Returns `true` if the set contained an equivalent item, `false` otherwise.
+        /// Returns `true` if the set did not contain an equivalent item, `false` otherwise.
         fn insert(&mut self, item: Self::Item) -> bool;
 
-        /// Inserts the given item into the set with replacement.
+        /// Inserts the given item into the set, replacing an equivalent item.
         ///
         /// Returns the equivalent item if the set contained one, `None` otherwise.
         fn replace(&mut self, item: Self::Item) -> Option<Self::Item>;
