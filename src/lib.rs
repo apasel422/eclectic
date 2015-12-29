@@ -98,11 +98,9 @@ pub mod list {
         ///
         /// This is equivalent to `self.remove(self.len() - 1)`, but may be optimized.
         fn pop(&mut self) -> Option<Self::Item> {
-            if self.is_empty() {
-                None
-            } else {
-                let len = self.len();
-                self.remove(len - 1)
+            match self.len() {
+                0 => None,
+                len => self.remove(len - 1),
             }
         }
 
@@ -125,15 +123,7 @@ pub mod list {
         /// last item in the list.
         ///
         /// Returns `None` if `index >= self.len()`.
-        fn swap_remove(&mut self, index: usize) -> Option<Self::Item> {
-            if index >= self.len() {
-                None
-            } else {
-                let len = self.len();
-                self.swap(index, len - 1);
-                self.pop()
-            }
-        }
+        fn swap_remove(&mut self, index: usize) -> Option<Self::Item>;
 
         /// Removes all items in the list starting at the given index.
         ///
