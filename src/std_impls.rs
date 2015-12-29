@@ -350,6 +350,10 @@ impl<T> list::Remove for Vec<T> {
             None
         }
     }
+
+    fn truncate(&mut self, index: usize) {
+        self.truncate(index);
+    }
 }
 
 impl<T> seq::PushBack for Vec<T> {
@@ -392,6 +396,7 @@ impl<T> list::Remove for VecDeque<T> {
     fn remove(&mut self, index: usize) -> Option<T> { self.remove(index) }
     fn split_off(&mut self, index: usize) -> Self { self.split_off(index) }
     fn swap_remove(&mut self, index: usize) -> Option<T> { self.swap_remove_back(index) }
+    fn truncate(&mut self, index: usize) { self.truncate(index); }
 }
 
 impl<T> seq::PushBack for VecDeque<T> {

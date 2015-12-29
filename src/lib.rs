@@ -1,6 +1,7 @@
 //! Collection traits for generic programming.
 
 #![deny(missing_docs)]
+#![feature(deque_extras)]
 #![feature(linked_list_extras)]
 #![feature(set_recovery)]
 
@@ -133,6 +134,12 @@ pub mod list {
                 self.pop()
             }
         }
+
+        /// Removes all items in the list starting at the given index.
+        ///
+        /// This is equivalent to calling `self.pop()` the corresponding number of times, but may
+        /// be optimized.
+        fn truncate(&mut self, index: usize);
     }
 }
 
