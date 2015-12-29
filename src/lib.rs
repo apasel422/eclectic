@@ -91,7 +91,7 @@ pub mod list {
     }
 
     /// A list that supports insertion.
-    pub trait Insert: List {
+    pub trait Insert: List + collection::Insert {
         /// Inserts the given item into the list at the given index.
         ///
         /// All items after the given index are shifted one index to the right.
@@ -111,7 +111,12 @@ pub mod list {
     }
 
     /// A list that supports removal.
-    pub trait Remove: List {
+    ///
+    /// This trait refines [`collection::Remove::drain`][drain] to yield its items in the order of
+    /// the items in the list.
+    ///
+    /// [drain]: ../collection/trait.Remove.html#tymethod.drain
+    pub trait Remove: List + collection::Remove {
         /// Removes the items in the list that lie in the given range and returns an iterator that
         /// yields them.
         ///
