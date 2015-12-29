@@ -24,11 +24,11 @@ impl<T: Ord> Collection for BinaryHeap<T> {
     fn len(&self) -> usize { self.len() }
 }
 
-impl<T: Ord> Insert for BinaryHeap<T> {
+impl<T: Ord> collection::Insert for BinaryHeap<T> {
     fn append(&mut self, other: &mut Self) { self.extend(other.drain()); }
 }
 
-impl<T: Ord> Remove for BinaryHeap<T> {
+impl<T: Ord> collection::Remove for BinaryHeap<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
@@ -38,11 +38,11 @@ impl<K: Ord, V> Collection for BTreeMap<K, V> {
     fn len(&self) -> usize { self.len() }
 }
 
-impl<K: Ord, V> Insert for BTreeMap<K, V> {
+impl<K: Ord, V> collection::Insert for BTreeMap<K, V> {
     fn append(&mut self, other: &mut Self) { self.extend(replace(other, Self::new())); }
 }
 
-impl<K: Ord, V> Remove for BTreeMap<K, V> {
+impl<K: Ord, V> collection::Remove for BTreeMap<K, V> {
     fn clear(&mut self) { self.clear(); }
 }
 
@@ -97,11 +97,11 @@ impl<T: Ord> Collection for BTreeSet<T> {
     fn len(&self) -> usize { self.len() }
 }
 
-impl<T: Ord> Insert for BTreeSet<T> {
+impl<T: Ord> collection::Insert for BTreeSet<T> {
     fn append(&mut self, other: &mut Self) { self.extend(replace(other, Self::new())); }
 }
 
-impl<T: Ord> Remove for BTreeSet<T> {
+impl<T: Ord> collection::Remove for BTreeSet<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
@@ -140,11 +140,11 @@ impl<K: Eq + Hash, V> Collection for HashMap<K, V> {
     fn len(&self) -> usize { self.len() }
 }
 
-impl<K: Eq + Hash, V> Insert for HashMap<K, V> {
+impl<K: Eq + Hash, V> collection::Insert for HashMap<K, V> {
     fn append(&mut self, other: &mut Self) { self.extend(other.drain()); }
 }
 
-impl<K: Eq + Hash, V> Remove for HashMap<K, V> {
+impl<K: Eq + Hash, V> collection::Remove for HashMap<K, V> {
     fn clear(&mut self) { self.clear(); }
 }
 
@@ -199,11 +199,11 @@ impl<T: Eq + Hash> Collection for HashSet<T> {
     fn len(&self) -> usize { self.len() }
 }
 
-impl<T: Eq + Hash> Insert for HashSet<T> {
+impl<T: Eq + Hash> collection::Insert for HashSet<T> {
     fn append(&mut self, other: &mut Self) { self.extend(other.drain()); }
 }
 
-impl<T: Eq + Hash> Remove for HashSet<T> {
+impl<T: Eq + Hash> collection::Remove for HashSet<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
@@ -242,13 +242,13 @@ impl<T> Collection for LinkedList<T> {
     fn len(&self) -> usize { self.len() }
 }
 
-impl<T> Insert for LinkedList<T> {
+impl<T> collection::Insert for LinkedList<T> {
     fn append(&mut self, other: &mut Self) {
         self.append(other);
     }
 }
 
-impl<T> Remove for LinkedList<T> {
+impl<T> collection::Remove for LinkedList<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
@@ -313,11 +313,11 @@ impl<T> Collection for Vec<T> {
     fn len(&self) -> usize { self.len() }
 }
 
-impl<T> Insert for Vec<T> {
+impl<T> collection::Insert for Vec<T> {
     fn append(&mut self, other: &mut Self) { self.append(other); }
 }
 
-impl<T> Remove for Vec<T> {
+impl<T> collection::Remove for Vec<T> {
     fn clear(&mut self) { self.clear(); }
 }
 
@@ -370,11 +370,11 @@ impl<T> Collection for VecDeque<T> {
     fn len(&self) -> usize { self.len() }
 }
 
-impl<T> Insert for VecDeque<T> {
+impl<T> collection::Insert for VecDeque<T> {
     fn append(&mut self, other: &mut Self) { self.append(other); }
 }
 
-impl<T> Remove for VecDeque<T> {
+impl<T> collection::Remove for VecDeque<T> {
     fn clear(&mut self) { self.clear(); }
 }
 

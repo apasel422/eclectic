@@ -6,46 +6,58 @@
 
 mod std_impls;
 
-/// A collection.
-pub trait Collection {
-    /// The type of the collection's items.
-    type Item;
+pub use collection::Collection;
+pub use list::List;
+pub use map::Map;
+pub use seq::{Deque, Queue, Stack};
+pub use set::Set;
 
-    /// Checks if the collection contains zero items.
-    ///
-    /// This is equivalent to `self.len() == 0`, but may be optimized.
-    fn is_empty(&self) -> bool {
-        self.len() == 0
+pub mod collection {
+    //! Collections.
+
+    /// A collection.
+    pub trait Collection {
+        /// The type of the collection's items.
+        type Item;
+
+        /// Checks if the collection contains zero items.
+        ///
+        /// This is equivalent to `self.len() == 0`, but may be optimized.
+        fn is_empty(&self) -> bool {
+            self.len() == 0
+        }
+
+        /// Returns the number of items in the collection.
+        fn len(&self) -> usize;
     }
 
-    /// Returns the number of items in the collection.
-    fn len(&self) -> usize;
-}
+    /// A collection that supports insertion.
+    pub trait Insert: Collection {
+        /// Moves all items from the given collection into the collection.
+        fn append(&mut self, other: &mut Self) where Self: Sized;
+    }
 
-/// A collection that supports insertion.
-pub trait Insert: Collection {
-    /// Moves all items from the given collection into the collection.
-    fn append(&mut self, other: &mut Self) where Self: Sized;
-}
+    /// A collection that supports removal.
+    pub trait Remove: Collection {
+        /// Removes all items from the collection.
+        fn clear(&mut self);
+    }
 
-/// A collection that supports removal.
-pub trait Remove: Collection {
-    /// Removes all items from the collection.
-    fn clear(&mut self);
-}
-
-#[test]
-fn test_object_safety() {
-    let _: &Collection<Item = i32>;
-    let _: &Remove<Item = i32>;
-    let _: &Insert<Item = i32>;
+    #[test]
+    fn test_object_safety() {
+        let _: &Collection<Item = i32>;
+        let _: &Remove<Item = i32>;
+        let _: &Insert<Item = i32>;
+    }
 }
 
 pub mod list {
     //! Lists.
 
+    use super::*;
+
     /// A list.
-    pub trait List: super::Collection {
+    pub trait List: Collection {
         /// Returns a reference to the item at the given index.
         ///
         /// Returns `None` if `index >= self.len()`.
@@ -137,11 +149,13 @@ pub mod list {
 pub mod map {
     //! Maps.
 
+    use super::*;
+
     /// A map.
     ///
     /// A map is a collection that associates keys with values, where the keys are distinguished
     /// according to some uniqueness criteria.
-    pub trait Map: super::Collection<Item = (<Self as Map>::Key, <Self as Map>::Value)> {
+    pub trait Map: Collection<Item = (<Self as Map>::Key, <Self as Map>::Value)> {
         /// The type of the map's keys.
         type Key;
 
@@ -171,7 +185,7 @@ pub mod map {
     }
 
     /// A map that supports removals using keys of type `&Q`.
-    pub trait Remove<Q: ?Sized = <Self as Map>::Key>: Get<Q> + super::Remove {
+    pub trait Remove<Q: ?Sized = <Self as Map>::Key>: Get<Q> + collection::Remove {
         /// Removes the key in the map that is equivalent to the given key and returns its value.
         ///
         /// Returns `None` if the map contains no such key.
@@ -179,7 +193,7 @@ pub mod map {
     }
 
     /// A map that supports insertion.
-    pub trait Insert: Map + super::Insert {
+    pub trait Insert: Map + collection::Insert {
         /// Inserts the given key and value into the map and returns the previous value
         /// corresponding to the given key, if any.
         fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value>;
@@ -288,14 +302,16 @@ pub mod map {
 pub mod seq {
     //! Sequences.
 
+    use super::*;
+
     /// A sequence that supports insertion.
-    pub trait PushBack: super::Insert {
+    pub trait PushBack: collection::Insert {
         /// Pushes the given item onto the back of the sequence.
         fn push_back(&mut self, item: Self::Item);
     }
 
     /// A queue.
-    pub trait Queue: PushBack + super::Remove {
+    pub trait Queue: PushBack + collection::Remove {
         /// Returns a reference to the item at the front of the queue.
         ///
         /// Returns `None` if the queue is empty.
@@ -313,7 +329,7 @@ pub mod seq {
     }
 
     /// A stack.
-    pub trait Stack: PushBack + super::Remove {
+    pub trait Stack: PushBack + collection::Remove {
         /// Returns a reference to the item at the back of the stack.
         ///
         /// Returns `None` if the stack is empty.
@@ -348,7 +364,7 @@ pub mod seq {
 pub mod set {
     //! Sets.
 
-    use super::Collection;
+    use super::*;
 
     /// A set.
     ///
@@ -382,7 +398,7 @@ pub mod set {
     }
 
     /// A set that supports removal using items of type `&Q`.
-    pub trait Remove<Q: ?Sized = <Self as Collection>::Item>: Get<Q> + super::Remove {
+    pub trait Remove<Q: ?Sized = <Self as Collection>::Item>: Get<Q> + collection::Remove {
         /// Removes the item in the set that is equivalent to the given item.
         ///
         /// Returns `true` if the set contained such an item, `false` otherwise.
@@ -399,7 +415,7 @@ pub mod set {
     }
 
     /// A set that supports insertion.
-    pub trait Insert: Set + super::Insert {
+    pub trait Insert: Set + collection::Insert {
         /// Inserts the given item into the set without replacement.
         ///
         /// Returns `true` if the set contained an equivalent item, `false` otherwise.
