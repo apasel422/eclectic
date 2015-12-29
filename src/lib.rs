@@ -1,6 +1,7 @@
 //! Collection traits for generic programming.
 
 #![deny(missing_docs)]
+#![feature(binary_heap_extras)]
 #![feature(deque_extras)]
 #![feature(linked_list_extras)]
 #![feature(set_recovery)]
@@ -459,6 +460,79 @@ pub mod set {
     }
 }
 
+/// A priority queue.
+pub trait PriorityQueue: collection::Insert + collection::Remove {
+    /// Returns a reference to the item at the front of the queue.
+    ///
+    /// Returns `None` if the queue is empty.
+    fn front(&self) -> Option<&Self::Item>;
+
+    /// Removes the item at the front of the queue and returns it.
+    ///
+    /// Returns `None` if the queue was empty.
+    fn pop_front(&mut self) -> Option<Self::Item>;
+
+    /// Pushes the given item onto the queue.
+    fn push(&mut self, item: Self::Item);
+
+    /// Pushes the given item onto the queue, then removes the item at the front of the queue and
+    /// returns it.
+    ///
+    /// This is equivalent to `self.push(item); self.pop_front().unwrap()`, but may be optimized.
+    fn push_pop_front(&mut self, item: Self::Item) -> Self::Item {
+        self.push(item);
+        self.pop_front().unwrap()
+    }
+
+    /// Removes the item at the front of the queue, then pushes the given item onto the queue.
+    ///
+    /// Returns the item that was removed from the front of queue, or `None` if the queue was
+    /// empty.
+    ///
+    /// This is equivalent to `let front = self.pop_front(); self.push(item); front`, but may be
+    /// optimized.
+    fn replace_front(&mut self, item: Self::Item) -> Option<Self::Item> {
+        let front = self.pop_front();
+        self.push(item);
+        front
+    }
+}
+
+/// A double-ended priority queue.
+pub trait PriorityDeque: PriorityQueue {
+    /// Returns a reference to the item at the back of the queue.
+    ///
+    /// Returns `None` if the queue is empty.
+    fn back(&self) -> Option<&Self::Item>;
+
+    /// Removes the item at the back of the queue and returns it.
+    ///
+    /// Returns `None` if the queue was empty.
+    fn pop_back(&mut self) -> Option<Self::Item>;
+
+    /// Pushes the given item onto the queue, then removes the item at the back of the queue and
+    /// returns it.
+    ///
+    /// This is equivalent to `self.push(item); self.pop_back().unwrap()`, but may be optimized.
+    fn push_pop_back(&mut self, item: Self::Item) -> Self::Item {
+        self.push(item);
+        self.pop_back().unwrap()
+    }
+
+    /// Removes the item at the back of the queue, then pushes the given item onto the queue.
+    ///
+    /// Returns the item that was removed from the back of queue, or `None` if the queue was
+    /// empty.
+    ///
+    /// This is equivalent to `let back = self.pop_back(); self.push(item); back`, but may be
+    /// optimized.
+    fn replace_back(&mut self, item: Self::Item) -> Option<Self::Item> {
+        let back = self.pop_back();
+        self.push(item);
+        back
+    }
+}
+
 #[allow(dead_code)]
 fn assert_object_safe() {
     let _: Collection<Item = String>;
@@ -485,4 +559,7 @@ fn assert_object_safe() {
     let _: &set::Insert<Item = String>;
     let _: &set::Get<str, Item = String>;
     let _: &set::Remove<str, Item = String>;
+
+    let _: &PriorityQueue<Item = String>;
+    let _: &PriorityDeque<Item = String>;
 }

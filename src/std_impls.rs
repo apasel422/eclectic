@@ -69,6 +69,28 @@ impl<T: Ord> collection::Remove for BinaryHeap<T> {
     }
 }
 
+impl<T: Ord> PriorityQueue for BinaryHeap<T> {
+    fn front(&self) -> Option<&T> {
+        self.peek()
+    }
+
+    fn pop_front(&mut self) -> Option<T> {
+        self.pop()
+    }
+
+    fn push(&mut self, item: T) {
+        self.push(item);
+    }
+
+    fn push_pop_front(&mut self, item: T) -> T {
+        self.push_pop(item)
+    }
+
+    fn replace_front(&mut self, item: T) -> Option<T> {
+        self.replace(item)
+    }
+}
+
 impl<K: Ord, V> Collection for BTreeMap<K, V> {
     type Item = (K, V);
 
