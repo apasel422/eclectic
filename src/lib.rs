@@ -1,6 +1,8 @@
 //! Collection traits for generic programming.
 
 #![deny(missing_docs)]
+#![feature(btree_range)]
+#![feature(collections_bound)]
 #![feature(binary_heap_extras)]
 #![feature(deque_extras)]
 #![feature(linked_list_extras)]
@@ -13,6 +15,8 @@ pub use list::List;
 pub use map::Map;
 pub use seq::{Deque, Queue, Stack};
 pub use set::Set;
+pub use sorted_map::SortedMap;
+pub use sorted_set::SortedSet;
 
 pub mod collection {
     //! Collections.
@@ -201,7 +205,6 @@ pub mod map {
         /// The iteration order is unspecified, but subtraits may place a requirement on it.
         fn iter_mut<'a>(&'a mut self) ->
             Box<Iterator<Item = (&'a Self::Key, &'a mut Self::Value)> + 'a>;
-
     }
 
     /// A map that supports retrievals using keys of type `&Q`.
@@ -460,6 +463,300 @@ pub mod set {
     }
 }
 
+pub mod sorted_map {
+    //! Sorted maps.
+
+    use super::{Map, map};
+
+    use std::collections::Bound;
+    use std::collections::Bound::*;
+
+    /// A sorted map.
+    ///
+    /// This trait refines the following methods to return iterators that yield their items in the
+    /// sorted order of the map:
+    ///
+    /// - [`Map::iter`](../map/trait.Map.html#tymethod.iter)
+    /// - [`Map::iter_mut`](../map/trait.Map.html#tymethod.iter_mut)
+    pub trait SortedMap: Map {
+        /// Returns a reference to the map's first key and a reference to its value.
+        ///
+        /// Returns `None` if the map is empty.
+        ///
+        /// This is equivalent to `self.iter().next()`, but may be optimized.
+        fn first(&self) -> Option<(&Self::Key, &Self::Value)> {
+            self.iter().next()
+        }
+
+        /// Returns a reference to the map's first key and a mutable reference to its value.
+        ///
+        /// Returns `None` if the map is empty.
+        ///
+        /// This is equivalent to `self.iter_mut().next()`, but may be optimized.
+        fn first_mut(&mut self) -> Option<(&Self::Key, &mut Self::Value)> {
+            self.iter_mut().next()
+        }
+
+        /// Returns a reference to the map's last key and a reference to its value.
+        ///
+        /// Returns `None` if the map is empty.
+        ///
+        /// This is equivalent to `self.iter().last()`, but may be optimized.
+        fn last(&self) -> Option<(&Self::Key, &Self::Value)> {
+            self.iter().last()
+        }
+
+        /// Returns a reference to the map's last key and a mutable reference to its value.
+        ///
+        /// Returns `None` if the map is empty.
+        ///
+        /// This is equivalent to `self.iter_mut().last()`, but may be optimized.
+        fn last_mut(&mut self) -> Option<(&Self::Key, &mut Self::Value)> {
+            self.iter_mut().last()
+        }
+    }
+
+    /// A sorted map that supports retrievals using keys of type `&Q`.
+    pub trait Get<Q: ?Sized = <Self as Map>::Key>: SortedMap + map::Get<Q> {
+        /// Returns a reference to the first key in the map that would be after the given key and a
+        /// reference to its value.
+        ///
+        /// Returns `None` if the map contains no such key.
+        ///
+        /// This is equivalent to `self.range(Excluded(key), Unbounded).next()`, but may be
+        /// optimized.
+        fn after(&self, key: &Q) -> Option<(&Self::Key, &Self::Value)> {
+            self.range(Excluded(key), Unbounded).next()
+        }
+
+        /// Returns a reference to the first key in the map that would be after the given key and a
+        /// mutable reference to its value.
+        ///
+        /// Returns `None` if the map contains no such key.
+        ///
+        /// This is equivalent to `self.range_mut(Excluded(key), Unbounded).next()`, but may be
+        /// optimized.
+        fn after_mut(&mut self, key: &Q) -> Option<(&Self::Key, &mut Self::Value)> {
+            self.range_mut(Excluded(key), Unbounded).next()
+        }
+
+        /// Returns a reference to the first key in the map that would be equivalent to or after
+        /// the given key and a reference to its value.
+        ///
+        /// Returns `None` if the map contains no such key.
+        ///
+        /// This is equivalent to `self.range(Included(key), Unbounded).next()`, but may be
+        /// optimized.
+        fn at_or_after(&self, key: &Q) -> Option<(&Self::Key, &Self::Value)> {
+            self.range(Included(key), Unbounded).next()
+        }
+
+        /// Returns a reference to the first key in the map that would be equivalent to or after
+        /// the given key and a mutable reference to its value.
+        ///
+        /// Returns `None` if the map contains no such key.
+        ///
+        /// This is equivalent to `self.range_mut(Included(key), Unbounded).next()`, but may be
+        /// optimized.
+        fn at_or_after_mut(&mut self, key: &Q) -> Option<(&Self::Key, &mut Self::Value)> {
+            self.range_mut(Included(key), Unbounded).next()
+        }
+
+        /// Returns a reference to the last key in the map that would be equivalent to or before
+        /// the given key and a reference to its value.
+        ///
+        /// Returns `None` if the map contains no such key.
+        ///
+        /// This is equivalent to `self.range(Unbounded, Included(key)).next_back()`, but may be
+        /// optimized.
+        fn at_or_before(&self, key: &Q) -> Option<(&Self::Key, &Self::Value)> {
+            self.range(Unbounded, Included(key)).next_back()
+        }
+
+        /// Returns a reference to the last key in the map that would be equivalent to or before
+        /// the given key and a mutable reference to its value.
+        ///
+        /// Returns `None` if the map contains no such key.
+        ///
+        /// This is equivalent to `self.range_mut(Unbounded, Included(key)).next_back()`, but may
+        /// be optimized.
+        fn at_or_before_mut(&mut self, key: &Q) -> Option<(&Self::Key, &mut Self::Value)> {
+            self.range_mut(Unbounded, Included(key)).next_back()
+        }
+
+        /// Returns a reference to the last key in the map that would be before the given key and a
+        /// reference to its value.
+        ///
+        /// Returns `None` if the map contains no such key.
+        ///
+        /// This is equivalent to `self.range(Unbounded, Excluded(key)).next_back()`, but may be
+        /// optimized.
+        fn before(&self, key: &Q) -> Option<(&Self::Key, &Self::Value)> {
+            self.range(Unbounded, Excluded(key)).next_back()
+        }
+
+        /// Returns a reference to the last key in the map that would be before the given key and a
+        /// mutable reference to its value.
+        ///
+        /// Returns `None` if the map contains no such key.
+        ///
+        /// This is equivalent to `self.range_mut(Unbounded, Excluded(key)).next_back()`, but may
+        /// be optimized.
+        fn before_mut(&mut self, key: &Q) -> Option<(&Self::Key, &mut Self::Value)> {
+            self.range_mut(Unbounded, Excluded(key)).next_back()
+        }
+
+        /// Returns an iterator that yields references to the keys in the map that lie in the
+        /// given range and references to their values.
+        ///
+        /// The iteration order is the sorted order of the map.
+        fn range<'a>(&'a self, from: Bound<&Q>, to: Bound<&Q>) ->
+            Box<DoubleEndedIterator<Item = (&'a Self::Key, &'a Self::Value)> + 'a>;
+
+        /// Returns an iterator that yields references to the keys in the map that lie in the
+        /// given range and mutable references to their values.
+        ///
+        /// The iteration order is the sorted order of the map.
+        fn range_mut<'a>(&'a mut self, from: Bound<&Q>, to: Bound<&Q>) ->
+            Box<DoubleEndedIterator<Item = (&'a Self::Key, &'a mut Self::Value)> + 'a>;
+    }
+
+    /// A sorted map that supports removal using keys of type `&Q`.
+    ///
+    /// This trait refines the following methods to return iterators that yield their items in the
+    /// sorted order of the map:
+    ///
+    /// - [`collection::Remove::drain`](../collection/trait.Remove.html#tymethod.drain)
+    pub trait Remove<Q: ?Sized = <Self as Map>::Key>: Get<Q> + map::Remove<Q> {
+        /// Removes the keys in the map that lie in the given range and returns an iterator that
+        /// yields them and their values.
+        ///
+        /// All keys in the range are removed even if the iterator is not exhausted. However, the
+        /// behavior of this method is unspecified if the iterator is leaked.
+        ///
+        /// The iteration order is the sorted order of the map.
+        fn drain_range<'a>(&'a mut self, from: Bound<&Q>, to: Bound<&Q>) ->
+            Box<Iterator<Item = (Self::Key, Self::Value)> + 'a>;
+
+        /// Splits the map in two at the given key.
+        ///
+        /// After this method returns, `self` contains the keys `..at` and the returned map
+        /// contains the keys `at..`.
+        fn split_off(&mut self, at: &Q) -> Self where Self: Sized;
+    }
+}
+
+pub mod sorted_set {
+    //! Sorted sets.
+
+    use super::{Collection, Set, set};
+
+    use std::collections::Bound;
+    use std::collections::Bound::*;
+
+    /// A sorted set.
+    ///
+    /// This trait refines the following methods to return iterators that yield their items in the
+    /// sorted order of the map:
+    ///
+    /// - [`Set::iter`](../set/trait.Set.html#tymethod.iter)
+    pub trait SortedSet: Set {
+        /// Returns a reference to the set's first item.
+        ///
+        /// Returns `None` if the set is empty.
+        ///
+        /// This is equivalent to `self.iter().next()`, but may be optimized.
+        fn first(&self) -> Option<&Self::Item> {
+            self.iter().next()
+        }
+
+        /// Returns a reference to the set's last item.
+        ///
+        /// Returns `None` if the set is empty.
+        ///
+        /// This is equivalent to `self.iter().last()`, but may be optimized.
+        fn last(&self) -> Option<&Self::Item> {
+            self.iter().last()
+        }
+    }
+
+    /// A sorted set that supports retrievals using items of type `&Q`.
+    pub trait Get<Q: ?Sized = <Self as Collection>::Item>: SortedSet + set::Get<Q> {
+        /// Returns a reference to the first item in the set that would be after the given item.
+        ///
+        /// Returns `None` if the set contains no such item.
+        ///
+        /// This is equivalent to `self.range(Excluded(item), Unbounded).next()`, but may be
+        /// optimized.
+        fn after(&self, item: &Q) -> Option<&Self::Item> {
+            self.range(Excluded(item), Unbounded).next()
+        }
+
+        /// Returns a reference to the first item in the set that would be equivalent to or after
+        /// the given item.
+        ///
+        /// Returns `None` if the set contains no such item.
+        ///
+        /// This is equivalent to `self.range(Included(item), Unbounded).next()`, but may be
+        /// optimized.
+        fn at_or_after(&self, item: &Q) -> Option<&Self::Item> {
+            self.range(Included(item), Unbounded).next()
+        }
+
+        /// Returns a reference to the last item in the set that would be equivalent to or before
+        /// the given item.
+        ///
+        /// Returns `None` if the set contains no such item.
+        ///
+        /// This is equivalent to `self.range(Unbounded, Included(item)).next_back()`, but may be
+        /// optimized.
+        fn at_or_before(&self, item: &Q) -> Option<&Self::Item> {
+            self.range(Unbounded, Included(item)).next_back()
+        }
+
+        /// Returns a reference to the last item in the set that would be before the given item.
+        ///
+        /// Returns `None` if the set contains no such item.
+        ///
+        /// This is equivalent to `self.range(Unbounded, Excluded(item)).next_back()`, but may be
+        /// optimized.
+        fn before(&self, item: &Q) -> Option<&Self::Item> {
+            self.range(Unbounded, Excluded(item)).next_back()
+        }
+
+        /// Returns an iterator that yields references to the items in the set that lie in the
+        /// given range.
+        ///
+        /// The iteration order is the sorted order of the set.
+        fn range<'a>(&'a self, from: Bound<&Q>, to: Bound<&Q>) ->
+            Box<DoubleEndedIterator<Item = &'a Self::Item> + 'a>;
+    }
+
+    /// A sorted set that supports removal using items of type `&Q`.
+    ///
+    /// This trait refines the following methods to return iterators that yield their items in the
+    /// sorted order of the map:
+    ///
+    /// - [`collection::Remove::drain`](../collection/trait.Remove.html#tymethod.drain)
+    pub trait Remove<Q: ?Sized = <Self as Collection>::Item>: Get<Q> + set::Remove<Q> {
+        /// Removes the items in the set that lie in the given range and returns an iterator that
+        /// yields them.
+        ///
+        /// All items in the range are removed even if the iterator is not exhausted. However, the
+        /// behavior of this method is unspecified if the iterator is leaked.
+        ///
+        /// The iteration order is the sorted order of the set.
+        fn drain_range<'a>(&'a mut self, from: Bound<&Q>, to: Bound<&Q>) ->
+            Box<Iterator<Item = Self::Item> + 'a>;
+
+        /// Splits the set in two at the given item.
+        ///
+        /// After this method returns, `self` contains the items `..at` and the returned set
+        /// contains the items `at..`.
+        fn split_off(&mut self, at: &Q) -> Self where Self: Sized;
+    }
+}
+
 /// A priority queue.
 pub trait PriorityQueue: collection::Insert + collection::Remove {
     /// Returns a reference to the item at the front of the queue.
@@ -559,6 +856,14 @@ fn assert_object_safe() {
     let _: &set::Insert<Item = String>;
     let _: &set::Get<str, Item = String>;
     let _: &set::Remove<str, Item = String>;
+
+    let _: &SortedMap<Item = (String, i32), Key = String, Value = i32>;
+    let _: &sorted_map::Get<str, Item = (String, i32), Key = String, Value = i32>;
+    let _: &sorted_map::Remove<str, Item = (String, i32), Key = String, Value = i32>;
+
+    let _: &SortedSet<Item = String>;
+    let _: &sorted_set::Get<str, Item = String>;
+    let _: &sorted_set::Remove<str, Item = String>;
 
     let _: &PriorityQueue<Item = String>;
     let _: &PriorityDeque<Item = String>;

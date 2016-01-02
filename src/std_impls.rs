@@ -2,7 +2,8 @@ use super::*;
 
 use std::borrow::Borrow;
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap, HashSet, LinkedList, VecDeque};
-use std::collections::{btree_map, hash_map};
+use std::collections::{Bound, btree_map, hash_map};
+use std::collections::Bound::*;
 use std::hash::Hash;
 use std::mem::{replace, swap};
 use std::ops::Range;
@@ -201,6 +202,70 @@ impl<'a, K: 'a + Ord, V: 'a> map::VacantEntry for btree_map::VacantEntry<'a, K, 
     }
 }
 
+impl<K: Ord, V> SortedMap for BTreeMap<K, V> {
+    fn first(&self) -> Option<(&K, &V)> {
+        self.iter().next()
+    }
+
+    fn first_mut(&mut self) -> Option<(&K, &mut V)> {
+        self.iter_mut().next()
+    }
+
+    fn last(&self) -> Option<(&K, &V)> {
+        self.iter().next_back()
+    }
+
+    fn last_mut(&mut self) -> Option<(&K, &mut V)> {
+        self.iter_mut().next_back()
+    }
+}
+
+impl<K: Ord + Borrow<Q>, V, Q: ?Sized + Ord> sorted_map::Get<Q> for BTreeMap<K, V> {
+    fn after(&self, key: &Q) -> Option<(&K, &V)> {
+        self.range(Excluded(key), Unbounded).next()
+    }
+
+    fn after_mut(&mut self, key: &Q) -> Option<(&K, &mut V)> {
+        self.range_mut(Excluded(key), Unbounded).next()
+    }
+
+    fn at_or_after(&self, key: &Q) -> Option<(&K, &V)> {
+        self.range(Included(key), Unbounded).next()
+    }
+
+    fn at_or_after_mut(&mut self, key: &Q) -> Option<(&K, &mut V)> {
+        self.range_mut(Included(key), Unbounded).next()
+    }
+
+    fn at_or_before(&self, key: &Q) -> Option<(&K, &V)> {
+        self.range(Unbounded, Included(key)).next_back()
+    }
+
+    fn at_or_before_mut(&mut self, key: &Q) -> Option<(&K, &mut V)> {
+        self.range_mut(Unbounded, Included(key)).next_back()
+    }
+
+    fn before(&self, key: &Q) -> Option<(&K, &V)> {
+        self.range(Unbounded, Excluded(key)).next_back()
+    }
+
+    fn before_mut(&mut self, key: &Q) -> Option<(&K, &mut V)> {
+        self.range_mut(Unbounded, Excluded(key)).next_back()
+    }
+
+    fn range<'a>(&'a self, from: Bound<&Q>, to: Bound<&Q>) ->
+        Box<DoubleEndedIterator<Item = (&'a K, &'a V)> + 'a>
+    {
+        Box::new(self.range(from, to))
+    }
+
+    fn range_mut<'a>(&'a mut self, from: Bound<&Q>, to: Bound<&Q>) ->
+        Box<DoubleEndedIterator<Item = (&'a K, &'a mut V)> + 'a>
+    {
+        Box::new(self.range_mut(from, to))
+    }
+}
+
 impl<T: Ord> Collection for BTreeSet<T> {
     type Item = T;
 
@@ -274,6 +339,40 @@ impl<T: Ord> set::Insert for BTreeSet<T> {
 
     fn replace(&mut self, item: T) -> Option<T> {
         self.replace(item)
+    }
+}
+
+impl<T: Ord> SortedSet for BTreeSet<T> {
+    fn first(&self) -> Option<&T> {
+        self.iter().next()
+    }
+
+    fn last(&self) -> Option<&T> {
+        self.iter().next_back()
+    }
+}
+
+impl<T: Ord + Borrow<Q>, Q: ?Sized + Ord> sorted_set::Get<Q> for BTreeSet<T> {
+    fn after(&self, item: &Q) -> Option<&T> {
+        self.range(Excluded(item), Unbounded).next()
+    }
+
+    fn at_or_after(&self, item: &Q) -> Option<&T> {
+        self.range(Included(item), Unbounded).next()
+    }
+
+    fn at_or_before(&self, item: &Q) -> Option<&T> {
+        self.range(Unbounded, Included(item)).next_back()
+    }
+
+    fn before(&self, item: &Q) -> Option<&Self::Item> {
+        self.range(Unbounded, Excluded(item)).next_back()
+    }
+
+    fn range<'a>(&'a self, from: Bound<&Q>, to: Bound<&Q>) ->
+        Box<DoubleEndedIterator<Item = &'a T> + 'a>
+    {
+        Box::new(self.range(from, to))
     }
 }
 
