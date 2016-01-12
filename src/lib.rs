@@ -112,6 +112,11 @@ pub trait Collection {
         self.len() == 0
     }
 
+    /// Returns the number of items the collection can hold without reallocating.
+    ///
+    /// Node-based collections should report a capacity of `self.len()`.
+    fn capacity(&self) -> usize;
+
     /// Drains the given collection and inserts its items into the collection.
     ///
     /// The exact behavior of this method is unspecified, but it must be equivalent to

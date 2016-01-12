@@ -14,6 +14,10 @@ impl<T> Collection for [T] {
         self.len()
     }
 
+    fn capacity(&self) -> usize {
+        self.len()
+    }
+
     fn extend_object(&mut self, _items: &mut Iterator<Item = T>) where Self: Own {
         unimplemented!()
     }
@@ -83,6 +87,10 @@ impl<K: Ord, V> Collection for BTreeMap<K, V> {
     type Item = (K, V);
 
     fn len(&self) -> usize {
+        self.len()
+    }
+
+    fn capacity(&self) -> usize {
         self.len()
     }
 
@@ -172,6 +180,10 @@ impl<T: Ord> Collection for BTreeSet<T> {
         self.len()
     }
 
+    fn capacity(&self) -> usize {
+        self.len()
+    }
+
     fn append(&mut self, other: &mut Self) {
         self.extend(mem::replace(other, Self::new()));
     }
@@ -240,6 +252,10 @@ impl<T: Ord> Collection for BinaryHeap<T> {
         self.len()
     }
 
+    fn capacity(&self) -> usize {
+        self.capacity()
+    }
+
     fn append(&mut self, other: &mut Self) {
         self.extend(other.drain());
     }
@@ -298,6 +314,10 @@ impl<K: Eq + Hash, V> Collection for HashMap<K, V> {
 
     fn len(&self) -> usize {
         self.len()
+    }
+
+    fn capacity(&self) -> usize {
+        self.capacity()
     }
 
     fn append(&mut self, other: &mut Self) {
@@ -391,6 +411,10 @@ impl<T: Eq + Hash> Collection for HashSet<T> {
         self.len()
     }
 
+    fn capacity(&self) -> usize {
+        self.capacity()
+    }
+
     fn append(&mut self, other: &mut Self) {
         self.extend(other.drain());
     }
@@ -458,6 +482,10 @@ impl<T> Collection for LinkedList<T> {
     type Item = T;
 
     fn len(&self) -> usize {
+        self.len()
+    }
+
+    fn capacity(&self) -> usize {
         self.len()
     }
 
@@ -541,6 +569,10 @@ impl<T> Collection for Vec<T> {
 
     fn len(&self) -> usize {
         self.len()
+    }
+
+    fn capacity(&self) -> usize {
+        self.capacity()
     }
 
     fn append(&mut self, other: &mut Self) {
@@ -643,6 +675,10 @@ impl<T> Collection for VecDeque<T> {
 
     fn len(&self) -> usize {
         self.len()
+    }
+
+    fn capacity(&self) -> usize {
+        self.capacity()
     }
 
     fn clear(&mut self) {
