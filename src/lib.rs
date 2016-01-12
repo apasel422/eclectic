@@ -81,8 +81,10 @@
 //! them.
 
 #![deny(missing_docs)]
-#![feature(deque_extras)]
-#![feature(set_recovery)]
+#![cfg_attr(feature = "nightly", feature(
+    deque_extras,
+    set_recovery,
+))]
 
 mod impls;
 
@@ -298,7 +300,11 @@ pub trait List:
     ///
     /// Does nothing if `len >= self.len()`.
     fn truncate(&mut self, len: usize) where Self: Own {
-        self.drain_range(len..);
+        if len == 0 {
+            self.clear();
+        } else {
+            self.drain_range(len..);
+        }
     }
 
     /// Splits the list in two at the given index.
@@ -541,6 +547,7 @@ pub mod set {
         ///
         /// Returns the item that was replaced, or `None` if the set did not contain an equivalent
         /// item.
+        #[cfg(feature = "nightly")]
         fn replace(&mut self, item: Self::Item) -> Option<Self::Item> where Self: Own;
     }
 
@@ -553,6 +560,11 @@ pub mod set {
     /// items using a `str`. When omitted, `Q` defaults to `Self::Item`.
     pub trait Set<Q: ?Sized = <Self as Collection>::Item>: Base {
         /// Checks if the set contains an item that is equivalent to the given item.
+        #[cfg(not(feature = "nightly"))]
+        fn contains(&self, item: &Q) -> bool;
+
+        /// Checks if the set contains an item that is equivalent to the given item.
+        #[cfg(feature = "nightly")]
         fn contains(&self, item: &Q) -> bool {
             self.get(item).is_some()
         }
@@ -560,18 +572,27 @@ pub mod set {
         /// Returns a reference to the item in the set that is equivalent to the given item.
         ///
         /// Returns `None` if the set contains no such item.
+        #[cfg(feature = "nightly")]
         fn get(&self, item: &Q) -> Option<&Self::Item>;
 
         /// Removes the item in the set that is equivalent to the given item.
         ///
         /// Returns `true` if the set contained such an item, `false` otherwise.
+        #[cfg(feature = "nightly")]
         fn remove(&mut self, item: &Q) -> bool where Self: Own {
             self.take(item).is_some()
         }
 
+        /// Removes the item in the set that is equivalent to the given item.
+        ///
+        /// Returns `true` if the set contained such an item, `false` otherwise.
+        #[cfg(not(feature = "nightly"))]
+        fn remove(&mut self, item: &Q) -> bool where Self: Own;
+
         /// Removes the item in the set that is equivalent to the given item and returns it.
         ///
         /// Returns `None` if the set contained no such item.
+        #[cfg(feature = "nightly")]
         fn take(&mut self, item: &Q) -> Option<Self::Item> where Self: Own;
     }
 }

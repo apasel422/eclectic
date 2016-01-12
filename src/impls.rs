@@ -228,16 +228,27 @@ impl<T: Ord> set::Base for BTreeSet<T> {
         self.insert(item)
     }
 
+    #[cfg(feature = "nightly")]
     fn replace(&mut self, item: T) -> Option<T> {
         self.replace(item)
     }
 }
 
 impl<T: Ord + Borrow<Q>, Q: ?Sized + Ord> Set<Q> for BTreeSet<T> {
+    fn contains(&self, item: &Q) -> bool {
+        self.contains(item)
+    }
+
+    #[cfg(feature = "nightly")]
     fn get(&self, item: &Q) -> Option<&T> {
         self.get(item)
     }
 
+    fn remove(&mut self, item: &Q) -> bool {
+        self.remove(item)
+    }
+
+    #[cfg(feature = "nightly")]
     fn take(&mut self, item: &Q) -> Option<T> {
         self.take(item)
     }
@@ -459,16 +470,27 @@ impl<T: Eq + Hash> set::Base for HashSet<T> {
         self.insert(item)
     }
 
+    #[cfg(feature = "nightly")]
     fn replace(&mut self, item: T) -> Option<T> {
         self.replace(item)
     }
 }
 
 impl<T: Eq + Hash + Borrow<Q>, Q: ?Sized + Eq + Hash> Set<Q> for HashSet<T> {
+    fn contains(&self, item: &Q) -> bool {
+        self.contains(item)
+    }
+
+    #[cfg(feature = "nightly")]
     fn get(&self, item: &Q) -> Option<&T> {
         self.get(item)
     }
 
+    fn remove(&mut self, item: &Q) -> bool {
+        self.remove(item)
+    }
+
+    #[cfg(feature = "nightly")]
     fn take(&mut self, item: &Q) -> Option<T> {
         self.take(item)
     }
@@ -657,6 +679,7 @@ impl<T> List for Vec<T> {
         }
     }
 
+    #[cfg(feature = "nightly")]
     fn truncate(&mut self, len: usize) {
         self.truncate(len);
     }
@@ -755,6 +778,7 @@ impl<T> List for VecDeque<T> {
         self.swap_remove_back(index)
     }
 
+    #[cfg(feature = "nightly")]
     fn truncate(&mut self, len: usize) {
         self.truncate(len);
     }
