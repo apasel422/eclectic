@@ -316,6 +316,18 @@ impl<T: Ord> Queue for BinaryHeap<T> {
     }
 }
 
+impl<T: Ord> PrioQueue for BinaryHeap<T> {
+    #[cfg(feature = "nightly")]
+    fn push_pop_front(&mut self, item: T) -> T {
+        self.push_pop(item)
+    }
+
+    #[cfg(feature = "nightly")]
+    fn replace_front(&mut self, item: T) -> Option<T> {
+        self.replace(item)
+    }
+}
+
 impl<K: Eq + Hash, V> Mut for HashMap<K, V> {}
 
 impl<K: Eq + Hash, V> Own for HashMap<K, V> {}

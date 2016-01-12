@@ -82,6 +82,7 @@
 
 #![deny(missing_docs)]
 #![cfg_attr(feature = "nightly", feature(
+    binary_heap_extras,
     deque_extras,
     set_recovery,
 ))]
