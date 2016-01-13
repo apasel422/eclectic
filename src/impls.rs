@@ -66,6 +66,10 @@ impl<T> List for [T] {
         self.swap(i, j);
     }
 
+    fn reverse(&mut self) {
+        self.reverse();
+    }
+
     fn insert(&mut self, _index: usize, _item: T) where Self: Own {
         unimplemented!()
     }
@@ -661,6 +665,10 @@ impl<T> List for Vec<T> {
 
     fn swap(&mut self, i: usize, j: usize) {
         (**self).swap(i, j);
+    }
+
+    fn reverse(&mut self) {
+        (**self).reverse();
     }
 
     fn push(&mut self, item: T) {

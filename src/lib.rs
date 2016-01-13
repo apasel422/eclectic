@@ -232,6 +232,15 @@ pub trait List:
     /// Panics if `i >= self.len() || j >= self.len()`.
     fn swap(&mut self, i: usize, j: usize) where Self: Mut;
 
+    /// Reverses the order of the items in the list.
+    fn reverse(&mut self) where Self: Mut {
+        let len = self.len();
+
+        for i in 0..len / 2 {
+            self.swap(i, len - i - 1);
+        }
+    }
+
     /// Returns a reference to the first item in the list.
     ///
     /// Returns `None` if the list is empty.
