@@ -458,9 +458,13 @@ impl<T: Eq + Hash> Collection for HashSet<T> {
         Box::new(self.drain())
     }
 
-    fn reserve(&mut self, _additional: usize) {}
+    fn reserve(&mut self, additional: usize) {
+        self.reserve(additional);
+    }
 
-    fn shrink_to_fit(&mut self) {}
+    fn shrink_to_fit(&mut self) {
+        self.shrink_to_fit();
+    }
 }
 
 impl<T: Eq + Hash> Iter for HashSet<T> {
