@@ -5,7 +5,7 @@ use std::mem;
 use std::ops::Range;
 use super::*;
 
-impl<T> Mut for [T] {}
+impl<T> Mutate for [T] {}
 
 impl<T> Collection for [T] {
     type Item = T;
@@ -18,19 +18,19 @@ impl<T> Collection for [T] {
         self.len()
     }
 
-    fn extend_object(&mut self, _items: &mut Iterator<Item = T>) where Self: Own {
+    fn extend_object(&mut self, _items: &mut Iterator<Item = T>) where Self: AddRemove {
         unimplemented!()
     }
 
-    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = T> + 'a> where Self: Own {
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = T> + 'a> where Self: AddRemove {
         unimplemented!()
     }
 
-    fn reserve(&mut self, _additional: usize) where Self: Own {
+    fn reserve(&mut self, _additional: usize) where Self: AddRemove {
         unimplemented!()
     }
 
-    fn shrink_to_fit(&mut self) where Self: Own {
+    fn shrink_to_fit(&mut self) where Self: AddRemove {
         unimplemented!()
     }
 }
@@ -47,7 +47,7 @@ impl<T> Iter for [T] {
 
 impl<T> DrainRange<Range<usize>> for [T] {
     fn drain_range<'a>(&'a mut self, _range: Range<usize>)
-        -> Box<Iterator<Item = T> + 'a> where Self: Own
+        -> Box<Iterator<Item = T> + 'a> where Self: AddRemove
     {
         unimplemented!()
     }
@@ -70,22 +70,22 @@ impl<T> List for [T] {
         self.reverse();
     }
 
-    fn insert(&mut self, _index: usize, _item: T) where Self: Own {
+    fn insert(&mut self, _index: usize, _item: T) where Self: AddRemove {
         unimplemented!()
     }
 
-    fn remove(&mut self, _index: usize) -> Option<T> where Self: Own {
+    fn remove(&mut self, _index: usize) -> Option<T> where Self: AddRemove {
         unimplemented!()
     }
 
-    fn swap_remove(&mut self, _index: usize) -> Option<T> where Self: Own {
+    fn swap_remove(&mut self, _index: usize) -> Option<T> where Self: AddRemove {
         unimplemented!()
     }
 }
 
-impl<K: Ord, V> Mut for BTreeMap<K, V> {}
+impl<K: Ord, V> Mutate for BTreeMap<K, V> {}
 
-impl<K: Ord, V> Own for BTreeMap<K, V> {}
+impl<K: Ord, V> AddRemove for BTreeMap<K, V> {}
 
 impl<K: Ord, V> Collection for BTreeMap<K, V> {
     type Item = (K, V);
@@ -175,7 +175,7 @@ impl<'a, K: 'a + Ord, V: 'a> map::VacantEntry for btree_map::VacantEntry<'a, K, 
     }
 }
 
-impl<T: Ord> Own for BTreeSet<T> {}
+impl<T: Ord> AddRemove for BTreeSet<T> {}
 
 impl<T: Ord> Collection for BTreeSet<T> {
     type Item = T;
@@ -214,7 +214,7 @@ impl<T: Ord> Iter for BTreeSet<T> {
         Box::new(self.iter())
     }
 
-    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> where Self: Mut {
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> where Self: Mutate {
         unimplemented!()
     }
 }
@@ -258,7 +258,7 @@ impl<T: Ord + Borrow<Q>, Q: ?Sized + Ord> Set<Q> for BTreeSet<T> {
     }
 }
 
-impl<T: Ord> Own for BinaryHeap<T> {}
+impl<T: Ord> AddRemove for BinaryHeap<T> {}
 
 impl<T: Ord> Collection for BinaryHeap<T> {
     type Item = T;
@@ -301,7 +301,7 @@ impl<T: Ord> Iter for BinaryHeap<T> {
         Box::new(self.iter())
     }
 
-    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> where Self: Mut {
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> where Self: Mutate {
         unimplemented!()
     }
 }
@@ -332,9 +332,9 @@ impl<T: Ord> PrioQueue for BinaryHeap<T> {
     }
 }
 
-impl<K: Eq + Hash, V> Mut for HashMap<K, V> {}
+impl<K: Eq + Hash, V> Mutate for HashMap<K, V> {}
 
-impl<K: Eq + Hash, V> Own for HashMap<K, V> {}
+impl<K: Eq + Hash, V> AddRemove for HashMap<K, V> {}
 
 impl<K: Eq + Hash, V> Collection for HashMap<K, V> {
     type Item = (K, V);
@@ -429,7 +429,7 @@ impl<'a, K: 'a + Eq + Hash, V: 'a> map::VacantEntry for hash_map::VacantEntry<'a
 }
 
 
-impl<T: Eq + Hash> Own for HashSet<T> {}
+impl<T: Eq + Hash> AddRemove for HashSet<T> {}
 
 impl<T: Eq + Hash> Collection for HashSet<T> {
     type Item = T;
@@ -472,7 +472,7 @@ impl<T: Eq + Hash> Iter for HashSet<T> {
         Box::new(self.iter())
     }
 
-    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> where Self: Mut {
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut T> + 'a> where Self: Mutate {
         unimplemented!()
     }
 }
@@ -516,9 +516,9 @@ impl<T: Eq + Hash + Borrow<Q>, Q: ?Sized + Eq + Hash> Set<Q> for HashSet<T> {
     }
 }
 
-impl<T> Mut for LinkedList<T> {}
+impl<T> Mutate for LinkedList<T> {}
 
-impl<T> Own for LinkedList<T> {}
+impl<T> AddRemove for LinkedList<T> {}
 
 impl<T> Collection for LinkedList<T> {
     type Item = T;
@@ -602,9 +602,9 @@ impl<T> FifoDeque for LinkedList<T> {
     }
 }
 
-impl<T> Mut for Vec<T> {}
+impl<T> Mutate for Vec<T> {}
 
-impl<T> Own for Vec<T> {}
+impl<T> AddRemove for Vec<T> {}
 
 impl<T> Collection for Vec<T> {
     type Item = T;
@@ -713,9 +713,9 @@ impl<T> List for Vec<T> {
     }
 }
 
-impl<T> Mut for VecDeque<T> {}
+impl<T> Mutate for VecDeque<T> {}
 
-impl<T> Own for VecDeque<T> {}
+impl<T> AddRemove for VecDeque<T> {}
 
 impl<T> Collection for VecDeque<T> {
     type Item = T;

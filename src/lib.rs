@@ -3,19 +3,19 @@
 //! This crate distinguishes three modes of access to a collection, as determined by marker bounds
 //! on the methods of each collection trait:
 //!
-//! | Marker Bound | Enables                             | Analogous To  |
-//! |--------------|-------------------------------------|---------------|
-//! | (none)       | Read-only access to items and state | `&[T]`        |
-//! | [`Mut`]      | Write access to items               | `&mut [T]`    |
-//! | [`Own`]      | Insertion and removal of items      | `&mut Vec<T>` |
+//! | Marker Bound  | Enables                             | Analogous To  |
+//! |---------------|-------------------------------------|---------------|
+//! | (none)        | Read-only access to items and state | `&[T]`        |
+//! | [`Mutate`]    | Write access to items               | `&mut [T]`    |
+//! | [`AddRemove`] | Insertion and removal of items      | `&mut Vec<T>` |
 //!
-//! [`Mut`]: trait.Mut.html
-//! [`Own`]: trait.Own.html
+//! [`Mutate`]: trait.Mutate.html
+//! [`AddRemove`]: trait.AddRemove.html
 //!
 //! These bounds can be combined with each of the collection traits to enable different operations
 //! on the collection. For example, [`List`] on its own provides [`len`] and [`get`], while
-//! `List + Mut` additionally provides [`get_mut`] and [`swap`], and `List + Own` additionally
-//! provides [`clear`] and [`push`].
+//! `List + Mutate` additionally provides [`get_mut`] and [`swap`], and `List + AddRemove`
+//! additionally provides [`clear`] and [`push`].
 //!
 //! [`List`]: trait.List.html
 //! [`clear`]: trait.Collection.html#tymethod.clear
@@ -34,14 +34,14 @@
 //! Insertion sort:
 //!
 //! ```
-//! use eclectic::{List, Mut};
+//! use eclectic::{List, Mutate};
 //!
-//! fn insertion_sort<L: ?Sized + List + Mut>(list: &mut L) where L::Item: Ord {
+//! fn insertion_sort<L: ?Sized + List + Mutate>(list: &mut L) where L::Item: Ord {
 //!     for i in 1..list.len() { // `len` is defined on `Collection`, a supertrait of `List`
 //!         let mut j = i;
 //!
 //!         while j > 0 && list.get(j) < list.get(j - 1) {
-//!             list.swap(j, j - 1); // the `Mut` bound on `L` enables the use of `List::swap`
+//!             list.swap(j, j - 1); // the `Mutate` bound on `L` enables the use of `List::swap`
 //!             j -= 1;
 //!         }
 //!     }
@@ -73,7 +73,7 @@
 //! trait Collection {
 //!     type Drain<'a>: 'a + Iterator<Item = Self::Item>;
 //!
-//!     fn drain<'a>(&'a mut self) -> Self::Drain<'a> where Self: Own;
+//!     fn drain<'a>(&'a mut self) -> Self::Drain<'a> where Self: AddRemove;
 //! }
 //! ```
 //!
@@ -95,10 +95,10 @@ pub use set::Set;
 use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
 
 /// A marker trait that enables write access to a collection's items.
-pub trait Mut {}
+pub trait Mutate {}
 
 /// A marker trait that enables insertion and removal of a collection's items.
-pub trait Own {}
+pub trait AddRemove {}
 
 /// A collection.
 ///
@@ -125,7 +125,7 @@ pub trait Collection {
     /// The exact behavior of this method is unspecified, but it must be equivalent to
     /// `self.extend_object(&mut other.drain())`. `other`'s capacity should remain the same, when
     /// possible.
-    fn append(&mut self, other: &mut Self) where Self: Sized + Own {
+    fn append(&mut self, other: &mut Self) where Self: Sized + AddRemove {
         self.extend_object(&mut other.drain());
     }
 
@@ -140,10 +140,10 @@ pub trait Collection {
     ///
     /// [`Extend::extend`]:
     ///     https://doc.rust-lang.org/stable/std/iter/trait.Extend.html#tymethod.extend
-    fn extend_object(&mut self, items: &mut Iterator<Item = Self::Item>) where Self: Own;
+    fn extend_object(&mut self, items: &mut Iterator<Item = Self::Item>) where Self: AddRemove;
 
     /// Removes all items from the collection.
-    fn clear(&mut self) where Self: Own {
+    fn clear(&mut self) where Self: AddRemove {
         self.drain();
     }
 
@@ -157,18 +157,18 @@ pub trait Collection {
     /// `self`'s capacity should remain the same, when possible.
     ///
     /// [`mem::forget`]: https://doc.rust-lang.org/stable/std/mem/fn.forget.html
-    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = Self::Item> + 'a> where Self: Own;
+    fn drain<'a>(&'a mut self) -> Box<Iterator<Item = Self::Item> + 'a> where Self: AddRemove;
 
     /// Reserves capacity for the given number of additional items to be inserted into the
     /// collection.
     ///
     /// This method may do nothing (e.g. for node-based collections).
-    fn reserve(&mut self, additional: usize) where Self: Own;
+    fn reserve(&mut self, additional: usize) where Self: AddRemove;
 
     /// Shrinks the collection's capacity as much as possible.
     ///
     /// This method may do nothing (e.g. for node-based collections).
-    fn shrink_to_fit(&mut self) where Self: Own;
+    fn shrink_to_fit(&mut self) where Self: AddRemove;
 }
 
 /// A collection that supports by-reference iteration.
@@ -184,7 +184,7 @@ pub trait Iter: Collection {
     /// Returns an iterator that yields mutable references to the collection's items.
     ///
     /// The iteration order is unspecified, but subtraits may place a requirement on it.
-    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut Self::Item> + 'a> where Self: Mut;
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut Self::Item> + 'a> where Self: Mutate;
 }
 
 /// A collection that supports draining a range of its items.
@@ -200,7 +200,7 @@ pub trait DrainRange<R>: Collection {
     ///
     /// [`mem::forget`]: https://doc.rust-lang.org/stable/std/mem/fn.forget.html
     fn drain_range<'a>(&'a mut self, range: R) -> Box<Iterator<Item = Self::Item> + 'a>
-        where Self: Own;
+        where Self: AddRemove;
 }
 
 /// A list.
@@ -223,17 +223,17 @@ pub trait List:
     /// Returns a mutable reference to the item at the given index in the list.
     ///
     /// Returns `None` if `index >= self.len()`.
-    fn get_mut(&mut self, index: usize) -> Option<&mut Self::Item> where Self: Mut;
+    fn get_mut(&mut self, index: usize) -> Option<&mut Self::Item> where Self: Mutate;
 
     /// Swaps the items at the given indices in the list.
     ///
     /// # Panics
     ///
     /// Panics if `i >= self.len() || j >= self.len()`.
-    fn swap(&mut self, i: usize, j: usize) where Self: Mut;
+    fn swap(&mut self, i: usize, j: usize) where Self: Mutate;
 
     /// Reverses the order of the items in the list.
-    fn reverse(&mut self) where Self: Mut {
+    fn reverse(&mut self) where Self: Mutate {
         let len = self.len();
 
         for i in 0..len / 2 {
@@ -251,7 +251,7 @@ pub trait List:
     /// Returns a mutable reference to the first item in the list.
     ///
     /// Returns `None` if the list is empty.
-    fn first_mut(&mut self) -> Option<&mut Self::Item> where Self: Mut {
+    fn first_mut(&mut self) -> Option<&mut Self::Item> where Self: Mutate {
         self.get_mut(0)
     }
 
@@ -265,13 +265,13 @@ pub trait List:
     /// Returns a mutable reference to the last item in the list.
     ///
     /// Returns `None` if the list is empty.
-    fn last_mut(&mut self) -> Option<&mut Self::Item> where Self: Mut {
+    fn last_mut(&mut self) -> Option<&mut Self::Item> where Self: Mutate {
         let len = self.len();
         self.get_mut(len.wrapping_sub(1))
     }
 
     /// Pushes the given item onto the end of the list.
-    fn push(&mut self, item: Self::Item) where Self: Own {
+    fn push(&mut self, item: Self::Item) where Self: AddRemove {
         let len = self.len();
         self.insert(len, item);
     }
@@ -283,12 +283,12 @@ pub trait List:
     /// # Panics
     ///
     /// Panics if `index > self.len()`.
-    fn insert(&mut self, index: usize, item: Self::Item) where Self: Own;
+    fn insert(&mut self, index: usize, item: Self::Item) where Self: AddRemove;
 
     /// Removes the last item in the list and returns it.
     ///
     /// Returns `None` if the list was empty.
-    fn pop(&mut self) -> Option<Self::Item> where Self: Own {
+    fn pop(&mut self) -> Option<Self::Item> where Self: AddRemove {
         let len = self.len();
         self.remove(len.wrapping_sub(1))
     }
@@ -298,18 +298,18 @@ pub trait List:
     /// Returns `None` if `index >= self.len()`.
     ///
     /// All items after the given index are shifted one index to the left.
-    fn remove(&mut self, index: usize) -> Option<Self::Item> where Self: Own;
+    fn remove(&mut self, index: usize) -> Option<Self::Item> where Self: AddRemove;
 
     /// Removes the item at the given index in the list and returns it, replacing it with the last
     /// item in the list.
     ///
     /// Returns `None` if `index >= self.len()`.
-    fn swap_remove(&mut self, index: usize) -> Option<Self::Item> where Self: Own;
+    fn swap_remove(&mut self, index: usize) -> Option<Self::Item> where Self: AddRemove;
 
     /// Removes all items in the list starting at the given index.
     ///
     /// Does nothing if `len >= self.len()`.
-    fn truncate(&mut self, len: usize) where Self: Own {
+    fn truncate(&mut self, len: usize) where Self: AddRemove {
         if len == 0 {
             self.clear();
         } else {
@@ -328,7 +328,7 @@ pub trait List:
     ///
     /// Panics if `index > self.len()`.
     // FIXME(rust-lang/rust#20021): this shouldn't be defaulted
-    fn split_off(&mut self, index: usize) -> Self where Self: Sized + Own {
+    fn split_off(&mut self, index: usize) -> Self where Self: Sized + AddRemove {
         let _ = index;
         unimplemented!()
     }
@@ -336,7 +336,7 @@ pub trait List:
 
 impl<L: ?Sized + List> DrainRange<RangeFrom<usize>> for L {
     fn drain_range<'a>(&'a mut self, range: RangeFrom<usize>) -> Box<Iterator<Item = L::Item> + 'a>
-        where L: Own
+        where L: AddRemove
     {
         let len = self.len();
         self.drain_range(range.start..len)
@@ -345,7 +345,7 @@ impl<L: ?Sized + List> DrainRange<RangeFrom<usize>> for L {
 
 impl<L: ?Sized + List> DrainRange<RangeTo<usize>> for L {
     fn drain_range<'a>(&'a mut self, range: RangeTo<usize>) -> Box<Iterator<Item = L::Item> + 'a>
-        where L: Own
+        where L: AddRemove
     {
         self.drain_range(0..range.end)
     }
@@ -353,7 +353,7 @@ impl<L: ?Sized + List> DrainRange<RangeTo<usize>> for L {
 
 impl<L: ?Sized + List> DrainRange<RangeFull> for L {
     fn drain_range<'a>(&'a mut self, _range: RangeFull) -> Box<Iterator<Item = L::Item> + 'a>
-        where L: Own
+        where L: AddRemove
     {
         self.drain()
     }
@@ -389,7 +389,7 @@ pub mod map {
         ///
         /// The iteration order is unspecified, but subtraits may place a requirement on it.
         fn iter_mut<'a>(&'a mut self)
-            -> Box<Iterator<Item = (&'a Self::Key, &'a mut Self::Value)> + 'a> where Self: Mut;
+            -> Box<Iterator<Item = (&'a Self::Key, &'a mut Self::Value)> + 'a> where Self: Mutate;
 
         /// Inserts the given key and value into the map without replacing an equivalent key.
         ///
@@ -398,11 +398,11 @@ pub mod map {
         ///
         /// Returns the equivalent key's value if the map contained one, `None` otherwise.
         fn insert(&mut self, key: Self::Key, value: Self::Value) -> Option<Self::Value>
-            where Self: Own;
+            where Self: AddRemove;
 
         /// Returns the entry in the map for the given key.
         fn entry<'a>(&'a mut self, key: Self::Key) -> Entry<'a, Self::Key, Self::Value>
-            where Self: Own;
+            where Self: AddRemove;
     }
 
     /// A map.
@@ -428,12 +428,12 @@ pub mod map {
         /// the given key.
         ///
         /// Returns `None` if the map contains no such key.
-        fn get_mut(&mut self, key: &Q) -> Option<&mut Self::Value> where Self: Mut;
+        fn get_mut(&mut self, key: &Q) -> Option<&mut Self::Value> where Self: Mutate;
 
         /// Removes the key in the map that is equivalent to the given key and returns its value.
         ///
         /// Returns `None` if the map contained no such key.
-        fn remove(&mut self, key: &Q) -> Option<Self::Value> where Self: Own;
+        fn remove(&mut self, key: &Q) -> Option<Self::Value> where Self: AddRemove;
     }
 
     /// A map entry.
@@ -548,7 +548,7 @@ pub mod set {
         /// replaced with the given item.
         ///
         /// Returns `true` if the given item was inserted into the set, `false` otherwise.
-        fn insert(&mut self, item: Self::Item) -> bool where Self: Own;
+        fn insert(&mut self, item: Self::Item) -> bool where Self: AddRemove;
 
         /// Inserts the given item into the set with replacement.
         ///
@@ -558,7 +558,7 @@ pub mod set {
         /// Returns the item that was replaced, or `None` if the set did not contain an equivalent
         /// item.
         #[cfg(feature = "nightly")]
-        fn replace(&mut self, item: Self::Item) -> Option<Self::Item> where Self: Own;
+        fn replace(&mut self, item: Self::Item) -> Option<Self::Item> where Self: AddRemove;
     }
 
     /// A set.
@@ -589,7 +589,7 @@ pub mod set {
         ///
         /// Returns `true` if the set contained such an item, `false` otherwise.
         #[cfg(feature = "nightly")]
-        fn remove(&mut self, item: &Q) -> bool where Self: Own {
+        fn remove(&mut self, item: &Q) -> bool where Self: AddRemove {
             self.take(item).is_some()
         }
 
@@ -597,13 +597,13 @@ pub mod set {
         ///
         /// Returns `true` if the set contained such an item, `false` otherwise.
         #[cfg(not(feature = "nightly"))]
-        fn remove(&mut self, item: &Q) -> bool where Self: Own;
+        fn remove(&mut self, item: &Q) -> bool where Self: AddRemove;
 
         /// Removes the item in the set that is equivalent to the given item and returns it.
         ///
         /// Returns `None` if the set contained no such item.
         #[cfg(feature = "nightly")]
-        fn take(&mut self, item: &Q) -> Option<Self::Item> where Self: Own;
+        fn take(&mut self, item: &Q) -> Option<Self::Item> where Self: AddRemove;
     }
 }
 
@@ -613,7 +613,7 @@ pub trait Queue: Collection + Iter {
     ///
     /// For FIFO queues, this pushes the item onto the back of the queue. For other queues, the
     /// location of the newly inserted item is unspecified.
-    fn push(&mut self, item: Self::Item) where Self: Own;
+    fn push(&mut self, item: Self::Item) where Self: AddRemove;
 
     /// Returns a reference to the item at the front of the queue.
     ///
@@ -623,7 +623,7 @@ pub trait Queue: Collection + Iter {
     /// Removes the item at the front of the queue and returns it.
     ///
     /// Returns `None` if the queue was empty.
-    fn pop_front(&mut self) -> Option<Self::Item> where Self: Own;
+    fn pop_front(&mut self) -> Option<Self::Item> where Self: AddRemove;
 }
 
 /// A first-in, first-out queue.
@@ -631,14 +631,14 @@ pub trait FifoQueue: Queue {
     /// Returns a mutable reference to the item at the front of the queue.
     ///
     /// Returns `None` if the queue is empty.
-    fn front_mut(&mut self) -> Option<&mut Self::Item> where Self: Mut;
+    fn front_mut(&mut self) -> Option<&mut Self::Item> where Self: Mutate;
 }
 
 /// A priority queue.
 pub trait PrioQueue: Queue {
     /// Pushes the given item onto the queue, then removes the item at the front of the queue and
     /// returns it.
-    fn push_pop_front(&mut self, item: Self::Item) -> Self::Item where Self: Own {
+    fn push_pop_front(&mut self, item: Self::Item) -> Self::Item where Self: AddRemove {
         self.push(item);
         self.pop_front().expect("queue was empty after a `push`")
     }
@@ -646,7 +646,7 @@ pub trait PrioQueue: Queue {
     /// Removes the item at the front of the queue, then pushes the given item onto the queue.
     ///
     /// Returns the item that was removed, or `None` if the queue was empty.
-    fn replace_front(&mut self, item: Self::Item) -> Option<Self::Item> where Self: Own {
+    fn replace_front(&mut self, item: Self::Item) -> Option<Self::Item> where Self: AddRemove {
         let front = self.pop_front();
         self.push(item);
         front
@@ -663,25 +663,25 @@ pub trait Deque: Queue {
     /// Removes the item at the back of the deque and returns it.
     ///
     /// Returns `None` if the deque was empty.
-    fn pop_back(&mut self) -> Option<Self::Item> where Self: Own;
+    fn pop_back(&mut self) -> Option<Self::Item> where Self: AddRemove;
 }
 
 /// A double-ended first-in, first-out queue.
 pub trait FifoDeque: FifoQueue + Deque {
     /// Pushes the given item onto the front of the deque.
-    fn push_front(&mut self, item: Self::Item) where Self: Own;
+    fn push_front(&mut self, item: Self::Item) where Self: AddRemove;
 
     /// Returns a mutable reference to the item at the back of the deque.
     ///
     /// Returns `None` if the deque is empty.
-    fn back_mut(&mut self) -> Option<&mut Self::Item> where Self: Mut;
+    fn back_mut(&mut self) -> Option<&mut Self::Item> where Self: Mutate;
 }
 
 /// A double-ended priority queue.
 pub trait PrioDeque: PrioQueue + Deque {
     /// Pushes the given item onto the deque, then removes the item at the back of the deque and
     /// returns it.
-    fn push_pop_back(&mut self, item: Self::Item) -> Self::Item where Self: Own {
+    fn push_pop_back(&mut self, item: Self::Item) -> Self::Item where Self: AddRemove {
         self.push(item);
         self.pop_back().expect("deque was empty after a `push`")
     }
@@ -689,7 +689,7 @@ pub trait PrioDeque: PrioQueue + Deque {
     /// Removes the item at the back of the deque, then pushes the given item onto the deque.
     ///
     /// Returns the item that was removed, or `None` if the deque was empty.
-    fn replace_back(&mut self, item: Self::Item) -> Option<Self::Item> where Self: Own {
+    fn replace_back(&mut self, item: Self::Item) -> Option<Self::Item> where Self: AddRemove {
         let back = self.pop_back();
         self.push(item);
         back
@@ -698,8 +698,8 @@ pub trait PrioDeque: PrioQueue + Deque {
 
 #[allow(dead_code)]
 fn assert_object_safe() {
-    let _: &Mut;
-    let _: &Own;
+    let _: &Mutate;
+    let _: &AddRemove;
 
     let _: &Collection<Item = String>;
 
