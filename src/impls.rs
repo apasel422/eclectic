@@ -117,6 +117,14 @@ impl<K: Ord, V> Collection for BTreeMap<K, V> {
     fn reserve(&mut self, _additional: usize) {}
 
     fn shrink_to_fit(&mut self) {}
+
+    fn with_capacity(_capacity: usize) -> Self {
+        Self::new()
+    }
+
+    fn into_vec(self) -> Vec<(K, V)> {
+        self.into_iter().collect()
+    }
 }
 
 impl<K: Ord, V> map::Base for BTreeMap<K, V> {
@@ -207,6 +215,14 @@ impl<T: Ord> Collection for BTreeSet<T> {
     fn reserve(&mut self, _additional: usize) {}
 
     fn shrink_to_fit(&mut self) {}
+
+    fn with_capacity(_capacity: usize) -> Self {
+        Self::new()
+    }
+
+    fn into_vec(self) -> Vec<T> {
+        self.into_iter().collect()
+    }
 }
 
 impl<T: Ord> Iter for BTreeSet<T> {
@@ -294,6 +310,14 @@ impl<T: Ord> Collection for BinaryHeap<T> {
     fn shrink_to_fit(&mut self) {
         self.shrink_to_fit();
     }
+
+    fn with_capacity(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
+
+    fn into_vec(self) -> Vec<T> {
+        self.into_vec()
+    }
 }
 
 impl<T: Ord> Iter for BinaryHeap<T> {
@@ -369,6 +393,14 @@ impl<K: Eq + Hash, V> Collection for HashMap<K, V> {
 
     fn shrink_to_fit(&mut self) {
         self.shrink_to_fit();
+    }
+
+    fn with_capacity(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
+
+    fn into_vec(self) -> Vec<(K, V)> {
+        self.into_iter().collect()
     }
 }
 
@@ -464,6 +496,14 @@ impl<T: Eq + Hash> Collection for HashSet<T> {
     fn shrink_to_fit(&mut self) {
         self.shrink_to_fit();
     }
+
+    fn with_capacity(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
+
+    fn into_vec(self) -> Vec<T> {
+        self.into_iter().collect()
+    }
 }
 
 impl<T: Eq + Hash> Iter for HashSet<T> {
@@ -549,6 +589,14 @@ impl<T> Collection for LinkedList<T> {
     fn reserve(&mut self, _additional: usize) {}
 
     fn shrink_to_fit(&mut self) {}
+
+    fn with_capacity(_capacity: usize) -> Self {
+        Self::new()
+    }
+
+    fn into_vec(self) -> Vec<T> {
+        self.into_iter().collect()
+    }
 }
 
 impl<T> Iter for LinkedList<T> {
@@ -638,6 +686,14 @@ impl<T> Collection for Vec<T> {
 
     fn shrink_to_fit(&mut self) {
         self.shrink_to_fit();
+    }
+
+    fn with_capacity(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
+
+    fn into_vec(self) -> Vec<T> {
+        self
     }
 }
 
@@ -749,6 +805,14 @@ impl<T> Collection for VecDeque<T> {
 
     fn shrink_to_fit(&mut self) {
         self.shrink_to_fit();
+    }
+
+    fn with_capacity(capacity: usize) -> Self {
+        Self::with_capacity(capacity)
+    }
+
+    fn into_vec(self) -> Vec<T> {
+        self.into_iter().collect()
     }
 }
 

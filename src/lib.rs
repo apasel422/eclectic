@@ -176,6 +176,21 @@ pub trait Collection {
     ///
     /// This method may do nothing (e.g. for node-based collections).
     fn shrink_to_fit(&mut self) where Self: AddRemove;
+
+    /// Returns a new collection with the given capacity.
+    ///
+    /// Collections (e.g. node-based ones) may ignore the capacity hint.
+    // FIXME(rust-lang/rust#20021): this shouldn't be defaulted
+    fn with_capacity(capacity: usize) -> Self where Self: Sized + Default {
+        let _ = capacity;
+        unimplemented!()
+    }
+
+    /// Converts the collection into a vector.
+    // FIXME(rust-lang/rust#20021): this shouldn't be defaulted
+    fn into_vec(self) -> Vec<Self::Item> where Self: Sized {
+        unimplemented!()
+    }
 }
 
 /// A collection that supports by-reference iteration.
