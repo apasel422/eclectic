@@ -428,7 +428,6 @@ impl<'a, K: 'a + Eq + Hash, V: 'a> map::VacantEntry for hash_map::VacantEntry<'a
     }
 }
 
-
 impl<T: Eq + Hash> AddRemove for HashSet<T> {}
 
 impl<T: Eq + Hash> Collection for HashSet<T> {
@@ -780,6 +779,11 @@ impl<T> List for VecDeque<T> {
 
     fn swap(&mut self, i: usize, j: usize) {
         self.swap(i, j);
+    }
+
+    fn reverse(&mut self) {
+        let mut it = self.iter_mut();
+        while let (Some(a), Some(b)) = (it.next(), it.next_back()) { mem::swap(a, b); }
     }
 
     fn push(&mut self, item: T) {
