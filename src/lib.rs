@@ -1,29 +1,25 @@
 //! Collection traits for generic programming.
 //!
-//! This crate distinguishes three modes of access to a collection, as determined by marker bounds
-//! on the methods of each collection trait:
+//! The principal traits in this library are:
 //!
-//! | Marker Bound  | Enables                             | Analogous To  |
-//! |---------------|-------------------------------------|---------------|
-//! | (none)        | Read-only access to items and state | `&[T]`        |
-//! | [`Mutate`]    | Write access to items               | `&mut [T]`    |
-//! | [`AddRemove`] | Insertion and removal of items      | `&mut Vec<T>` |
+//! - [`Collection`]
+//!     - [`List`]
+//!     - [`Map`]
+//!     - [`Set`]
+//!     - [`Queue`]
+//!         - [`FifoQueue`]
+//!         - [`PrioQueue`]
+//!     - [`Deque`]
+//!         - [`FifoDeque`]
+//!         - [`PrioDeque`]
 //!
-//! [`Mutate`]: trait.Mutate.html
-//! [`AddRemove`]: trait.AddRemove.html
+//! When combined with these traits, two marker traits enable the use of additional operations:
 //!
-//! These bounds can be combined with each of the collection traits to enable different operations
-//! on the collection. For example, [`List`] on its own provides [`len`] and [`get`], while
-//! `List + Mutate` additionally provides [`get_mut`] and [`swap`], and `List + AddRemove`
-//! additionally provides [`clear`] and [`push`].
-//!
-//! [`List`]: trait.List.html
-//! [`clear`]: trait.Collection.html#tymethod.clear
-//! [`get`]: trait.List.html#tymethod.get
-//! [`get_mut`]: trait.List.html#tymethod.get_mut
-//! [`push`]: trait.List.html#method.push
-//! [`swap`]: trait.List.html#tymethod.swap
-//! [`len`]: trait.Collection.html#tymethod.len
+//! | Marker        | Operations                                     | Analogous Type |
+//! |---------------|------------------------------------------------|----------------|
+//! | (none)        | Read-only access to a collection and its items | `&[T]`         |
+//! | [`Mutate`]    | Write access to a collection's items           | `&mut [T]`     |
+//! | [`AddRemove`] | Insertion and removal of a collection's items  | `&mut Vec<T>`  |
 //!
 //! Generic code should specify only those bounds that are needed for its operation, but may
 //! specify additional bounds for future compatibility. Generic code should also use the collection
@@ -49,18 +45,28 @@
 //!
 //! use std::collections::VecDeque;
 //!
-//! let mut slice = ["c", "b", "a"];
-//! insertion_sort(&mut slice as &mut [_]);
-//! assert_eq!(slice, ["a", "b", "c"]);
+//! let mut vec = vec!['c', 'a', 'e', 'd', 'b'];
+//! let mut vec_deque: VecDeque<_> = vec.iter().cloned().collect();
 //!
-//! let mut vec = vec!['c', 'b', 'a'];
 //! insertion_sort(&mut vec);
-//! assert_eq!(vec, ['a', 'b', 'c']);
+//! assert_eq!(vec, ['a', 'b', 'c', 'd', 'e']);
 //!
-//! let mut vec_deque: VecDeque<_> = vec![3, 2, 1].into_iter().collect();
 //! insertion_sort(&mut vec_deque);
-//! assert!(vec_deque.iter().eq(&[1, 2, 3]));
+//! assert!(vec_deque.iter().eq(&['a', 'b', 'c', 'd', 'e']));
 //! ```
+//!
+//! [`AddRemove`]: trait.AddRemove.html
+//! [`Collection`]: trait.Collection.html
+//! [`Deque`]: trait.Deque.html
+//! [`FifoDeque`]: trait.FifoDeque.html
+//! [`FifoQueue`]: trait.FifoQueue.html
+//! [`List`]: trait.List.html
+//! [`Map`]: map/trait.Map.html
+//! [`Mutate`]: trait.Mutate.html
+//! [`PrioDeque`]: trait.PrioDeque.html
+//! [`PrioQueue`]: trait.PrioQueue.html
+//! [`Queue`]: trait.Queue.html
+//! [`Set`]: set/trait.Set.html
 //!
 //! # A Note on Trait Objects
 //!
@@ -94,10 +100,11 @@ pub use set::Set;
 
 use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
 
-/// A marker trait that enables write access to a collection's items.
+/// A marker that indicates that a collection supports the mutation of its items.
 pub trait Mutate {}
 
-/// A marker trait that enables insertion and removal of a collection's items.
+/// A marker that indicates that a collection supports the insertion of new items and the removal
+/// of existing items.
 pub trait AddRemove {}
 
 /// A collection.
@@ -184,7 +191,8 @@ pub trait Iter: Collection {
     /// Returns an iterator that yields mutable references to the collection's items.
     ///
     /// The iteration order is unspecified, but subtraits may place a requirement on it.
-    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut Self::Item> + 'a> where Self: Mutate;
+    fn iter_mut<'a>(&'a mut self) -> Box<Iterator<Item = &'a mut Self::Item> + 'a>
+        where Self: Mutate;
 }
 
 /// A collection that supports draining a range of its items.
@@ -270,7 +278,7 @@ pub trait List:
         self.get_mut(len.wrapping_sub(1))
     }
 
-    /// Pushes the given item onto the end of the list.
+    /// Pushes the given item onto the back of the list.
     fn push(&mut self, item: Self::Item) where Self: AddRemove {
         let len = self.len();
         self.insert(len, item);
@@ -306,7 +314,8 @@ pub trait List:
     /// Returns `None` if `index >= self.len()`.
     fn swap_remove(&mut self, index: usize) -> Option<Self::Item> where Self: AddRemove;
 
-    /// Removes all items in the list starting at the given index.
+    /// Ensures that the list's length is no more than the given length by removing the
+    /// corresponding number of items from the back.
     ///
     /// Does nothing if `len >= self.len()`.
     fn truncate(&mut self, len: usize) where Self: AddRemove {
@@ -366,11 +375,13 @@ pub mod map {
 
     /// Map functionality that is independent of an additional type parameter.
     ///
-    /// It is unusual to use this trait directly. Consider using [`Map`](trait.Map.html) instead.
+    /// It is unusual to use this trait directly. Consider using [`Map`] instead.
     ///
-    /// This trait exists to prevent compilation errors that would occur due to ambiguous method
-    /// calls if the methods were instead implemented on `Map<Q>`. For example, calling `insert` on
-    /// a `Map<Q>` should not depend on `Q`.
+    /// This trait exists to prevent the ambiguity that would arise if its methods were instead
+    /// implemented on [`Map`]. In that scenario, `map.insert(key, value)` would be ambiguous if
+    /// the type of `map` were `M` and `M: Map<Q> + Map<R>`.
+    ///
+    /// [`Map`]: trait.Map.html
     pub trait Base: Collection<Item = (<Self as Base>::Key, <Self as Base>::Value)> {
         /// The type of the map's keys.
         type Key;
@@ -519,11 +530,13 @@ pub mod set {
 
     /// Set functionality that is independent of an additional type parameter.
     ///
-    /// It is unusual to use this trait directly. Consider using [`Set`](trait.Set.html) instead.
+    /// It is unusual to use this trait directly. Consider using [`Set`] instead.
     ///
-    /// This trait exists to prevent compilation errors that would occur due to ambiguous method
-    /// calls if the methods were instead implemented on `Set<Q>`. For example, calling `insert` on
-    /// a `Set<Q>` should not depend on `Q`.
+    /// This trait exists to prevent the ambiguity that would arise if its methods were instead
+    /// implemented on [`Set`]. In that scenario, `set.insert(item)` would be ambiguous if the type
+    /// of `set` were `S` and `S: Set<Q> + Set<R>`.
+    ///
+    /// [`Set`]: trait.Set.html
     pub trait Base: Collection + Iter {
         /// Checks if the set is disjoint from the given set.
         ///
