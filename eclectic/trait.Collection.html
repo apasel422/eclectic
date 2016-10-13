@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Collection` trait in crate `eclectic`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Collection">
+
+    <title>eclectic::Collection - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>eclectic</a></p><script>window.sidebarCurrent = {name: 'Collection', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>eclectic</a>::<wbr><a class='trait' href=''>Collection</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-676' class='srclink' href='../src/eclectic/src/lib.rs.html#111-192' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait Collection {
+    type <a href='#associatedtype.Item' class='type'>Item</a>;
+    fn <a href='#tymethod.len' class='fnname'>len</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>;
+    fn <a href='#tymethod.capacity' class='fnname'>capacity</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>;
+    fn <a href='#tymethod.extend_object' class='fnname'>extend_object</a>(&amp;mut self, items: &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html' title='core::iter::iterator::Iterator'>Iterator</a>&lt;Item=Self::Item&gt;) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span>;
+    fn <a href='#tymethod.drain' class='fnname'>drain</a>&lt;'a&gt;(&amp;'a mut self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html' title='core::iter::iterator::Iterator'>Iterator</a>&lt;Item=Self::Item&gt; + 'a&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span>;
+    fn <a href='#tymethod.reserve' class='fnname'>reserve</a>(&amp;mut self, additional: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span>;
+    fn <a href='#tymethod.shrink_to_fit' class='fnname'>shrink_to_fit</a>(&amp;mut self) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span>;
+
+    fn <a href='#method.is_empty' class='fnname'>is_empty</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.append' class='fnname'>append</a>(&amp;mut self, other: &amp;mut Self) <span class='where'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> + <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span> { ... }
+    fn <a href='#method.clear' class='fnname'>clear</a>(&amp;mut self) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span> { ... }
+    fn <a href='#method.with_capacity' class='fnname'>with_capacity</a>(capacity: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; Self <span class='where'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a></span> { ... }
+    fn <a href='#method.into_vec' class='fnname'>into_vec</a>(self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;Self::Item&gt; <span class='where'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a></span> { ... }
+}</pre><div class='docblock'><p>A collection.</p>
+
+<p>A collection maintains a finite number of items.</p>
+</div>
+            <h2 id='associated-types'>Associated Types</h2>
+            <div class='methods'>
+        <h3 id='associatedtype.Item' class='method stab '><span id='Item.t' class='invisible'><code>type <a href='#associatedtype.Item' class='type'>Item</a></code></span></h3><div class='docblock'><p>The type of the collection&#39;s items.</p>
+</div></div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.len' class='method stab '><span id='len.v' class='invisible'><code>fn <a href='#tymethod.len' class='fnname'>len</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></span></h3><div class='docblock'><p>Returns the number of items in the collection.</p>
+</div><h3 id='tymethod.capacity' class='method stab '><span id='capacity.v' class='invisible'><code>fn <a href='#tymethod.capacity' class='fnname'>capacity</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></span></h3><div class='docblock'><p>Returns the number of items the collection can hold without reallocating.</p>
+
+<p>Node-based collections should report a capacity of <code>self.len()</code>.</p>
+</div><h3 id='tymethod.extend_object' class='method stab '><span id='extend_object.v' class='invisible'><code>fn <a href='#tymethod.extend_object' class='fnname'>extend_object</a>(&amp;mut self, items: &amp;mut <a class='trait' href='https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html' title='core::iter::iterator::Iterator'>Iterator</a>&lt;Item=Self::Item&gt;) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Inserts the items yielded by the given iterator into the collection.</p>
+
+<p>This method is provided for use with trait objects, and generic code should prefer
+<a href="https://doc.rust-lang.org/stable/std/iter/trait.Extend.html#tymethod.extend"><code>Extend::extend</code></a>, which this method must be equivalent to.</p>
+
+<p>The exact behavior of this method is unspecified, but may be refined by subtraits.</p>
+
+<p>Note that this trait cannot extend <code>Extend</code> due to object-safety limitations.</p>
+</div><h3 id='tymethod.drain' class='method stab '><span id='drain.v' class='invisible'><code>fn <a href='#tymethod.drain' class='fnname'>drain</a>&lt;'a&gt;(&amp;'a mut self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html' title='core::iter::iterator::Iterator'>Iterator</a>&lt;Item=Self::Item&gt; + 'a&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Removes all items from the collection and returns an iterator that yields them.</p>
+
+<p>All items are removed even if the iterator is not exhausted. However, the behavior of
+this method is unspecified if the iterator is leaked (e.g. via <a href="https://doc.rust-lang.org/stable/std/mem/fn.forget.html"><code>mem::forget</code></a>).</p>
+
+<p>The iteration order is unspecified, but subtraits may place a requirement on it.</p>
+
+<p><code>self</code>&#39;s capacity should remain the same, when possible.</p>
+</div><h3 id='tymethod.reserve' class='method stab '><span id='reserve.v' class='invisible'><code>fn <a href='#tymethod.reserve' class='fnname'>reserve</a>(&amp;mut self, additional: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Reserves capacity for the given number of additional items to be inserted into the
+collection.</p>
+
+<p>This method may do nothing (e.g. for node-based collections).</p>
+</div><h3 id='tymethod.shrink_to_fit' class='method stab '><span id='shrink_to_fit.v' class='invisible'><code>fn <a href='#tymethod.shrink_to_fit' class='fnname'>shrink_to_fit</a>(&amp;mut self) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Shrinks the collection&#39;s capacity as much as possible.</p>
+
+<p>This method may do nothing (e.g. for node-based collections).</p>
+</div></div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.is_empty' class='method stab '><span id='is_empty.v' class='invisible'><code>fn <a href='#method.is_empty' class='fnname'>is_empty</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></span></h3><div class='docblock'><p>Checks if the collection contains no items.</p>
+</div><h3 id='method.append' class='method stab '><span id='append.v' class='invisible'><code>fn <a href='#method.append' class='fnname'>append</a>(&amp;mut self, other: &amp;mut Self) <span class='where'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> + <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Drains the given collection and inserts its items into the collection.</p>
+
+<p>The exact behavior of this method is unspecified, but it must be equivalent to
+<code>self.extend_object(&amp;mut other.drain())</code>. <code>other</code>&#39;s capacity should remain the same, when
+possible.</p>
+</div><h3 id='method.clear' class='method stab '><span id='clear.v' class='invisible'><code>fn <a href='#method.clear' class='fnname'>clear</a>(&amp;mut self) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Removes all items from the collection.</p>
+</div><h3 id='method.with_capacity' class='method stab '><span id='with_capacity.v' class='invisible'><code>fn <a href='#method.with_capacity' class='fnname'>with_capacity</a>(capacity: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; Self <span class='where'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a></span></code></span></h3><div class='docblock'><p>Returns a new collection with the given capacity.</p>
+
+<p>Collections (e.g. node-based ones) may ignore the capacity hint.</p>
+</div><h3 id='method.into_vec' class='method stab '><span id='into_vec.v' class='invisible'><code>fn <a href='#method.into_vec' class='fnname'>into_vec</a>(self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;Self::Item&gt; <span class='where'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a></span></code></span></h3><div class='docblock'><p>Converts the collection into a vector.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;T&gt; Collection for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a>T<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a></code></li>
+<li><code>impl&lt;K:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a>,&nbsp;V&gt; Collection for <a class='struct' href='https://doc.rust-lang.org/nightly/collections/btree/map/struct.BTreeMap.html' title='collections::btree::map::BTreeMap'>BTreeMap</a>&lt;K,&nbsp;V&gt;</code></li>
+<li><code>impl&lt;T:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a>&gt; Collection for <a class='struct' href='https://doc.rust-lang.org/nightly/collections/btree/set/struct.BTreeSet.html' title='collections::btree::set::BTreeSet'>BTreeSet</a>&lt;T&gt;</code></li>
+<li><code>impl&lt;T:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a>&gt; Collection for <a class='struct' href='https://doc.rust-lang.org/nightly/collections/binary_heap/struct.BinaryHeap.html' title='collections::binary_heap::BinaryHeap'>BinaryHeap</a>&lt;T&gt;</code></li>
+<li><code>impl&lt;K:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a>,&nbsp;V&gt; Collection for <a class='struct' href='https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;K,&nbsp;V&gt;</code></li>
+<li><code>impl&lt;T:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a>&gt; Collection for <a class='struct' href='https://doc.rust-lang.org/nightly/std/collections/hash/set/struct.HashSet.html' title='std::collections::hash::set::HashSet'>HashSet</a>&lt;T&gt;</code></li>
+<li><code>impl&lt;T&gt; Collection for <a class='struct' href='https://doc.rust-lang.org/nightly/collections/linked_list/struct.LinkedList.html' title='collections::linked_list::LinkedList'>LinkedList</a>&lt;T&gt;</code></li>
+<li><code>impl&lt;T&gt; Collection for <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;T&gt;</code></li>
+<li><code>impl&lt;T&gt; Collection for <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec_deque/struct.VecDeque.html' title='collections::vec_deque::VecDeque'>VecDeque</a>&lt;T&gt;</code></li>
+</ul><script type="text/javascript" async
+                         src="../implementors/eclectic/trait.Collection.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "eclectic";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    <script src="../extra.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

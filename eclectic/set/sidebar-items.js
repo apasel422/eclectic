@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["Base","Set functionality that is independent of an additional type parameter."],["Set","A set."]]});

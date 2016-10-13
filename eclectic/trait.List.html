@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `List` trait in crate `eclectic`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, List">
+
+    <title>eclectic::List - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>eclectic</a></p><script>window.sidebarCurrent = {name: 'List', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>eclectic</a>::<wbr><a class='trait' href=''>List</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-717' class='srclink' href='../src/eclectic/src/lib.rs.html#231-357' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait List: <a class='trait' href='../eclectic/trait.Collection.html' title='eclectic::Collection'>Collection</a> + <a class='trait' href='../eclectic/trait.Iter.html' title='eclectic::Iter'>Iter</a> + <a class='trait' href='../eclectic/trait.DrainRange.html' title='eclectic::DrainRange'>DrainRange</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>&gt;&gt; + <a class='trait' href='../eclectic/trait.DrainRange.html' title='eclectic::DrainRange'>DrainRange</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.RangeFrom.html' title='core::ops::RangeFrom'>RangeFrom</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>&gt;&gt; + <a class='trait' href='../eclectic/trait.DrainRange.html' title='eclectic::DrainRange'>DrainRange</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.RangeTo.html' title='core::ops::RangeTo'>RangeTo</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>&gt;&gt; + <a class='trait' href='../eclectic/trait.DrainRange.html' title='eclectic::DrainRange'>DrainRange</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.RangeFull.html' title='core::ops::RangeFull'>RangeFull</a>&gt; {
+    fn <a href='#tymethod.get' class='fnname'>get</a>(&amp;self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;Self::Item&gt;;
+    fn <a href='#tymethod.get_mut' class='fnname'>get_mut</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span>;
+    fn <a href='#tymethod.swap' class='fnname'>swap</a>(&amp;mut self, i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, j: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span>;
+    fn <a href='#tymethod.insert' class='fnname'>insert</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, item: Self::Item) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span>;
+    fn <a href='#tymethod.remove' class='fnname'>remove</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span>;
+    fn <a href='#tymethod.swap_remove' class='fnname'>swap_remove</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span>;
+
+    fn <a href='#method.reverse' class='fnname'>reverse</a>(&amp;mut self) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span> { ... }
+    fn <a href='#method.first' class='fnname'>first</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;Self::Item&gt; { ... }
+    fn <a href='#method.first_mut' class='fnname'>first_mut</a>(&amp;mut self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span> { ... }
+    fn <a href='#method.last' class='fnname'>last</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;Self::Item&gt; { ... }
+    fn <a href='#method.last_mut' class='fnname'>last_mut</a>(&amp;mut self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span> { ... }
+    fn <a href='#method.push' class='fnname'>push</a>(&amp;mut self, item: Self::Item) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span> { ... }
+    fn <a href='#method.pop' class='fnname'>pop</a>(&amp;mut self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span> { ... }
+    fn <a href='#method.truncate' class='fnname'>truncate</a>(&amp;mut self, len: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span> { ... }
+    fn <a href='#method.split_off' class='fnname'>split_off</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; Self <span class='where'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> + <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span> { ... }
+}</pre><div class='docblock'><p>A list.</p>
+
+<p>A list is an ordered collection in which each item is located at a corresponding index. The
+indices are non-negative integers and zero-based.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.get' class='method stab '><span id='get.v' class='invisible'><code>fn <a href='#tymethod.get' class='fnname'>get</a>(&amp;self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;Self::Item&gt;</code></span></h3><div class='docblock'><p>Returns a reference to the item at the given index in the list.</p>
+
+<p>Returns <code>None</code> if <code>index &gt;= self.len()</code>.</p>
+</div><h3 id='tymethod.get_mut' class='method stab '><span id='get_mut.v' class='invisible'><code>fn <a href='#tymethod.get_mut' class='fnname'>get_mut</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span></code></span></h3><div class='docblock'><p>Returns a mutable reference to the item at the given index in the list.</p>
+
+<p>Returns <code>None</code> if <code>index &gt;= self.len()</code>.</p>
+</div><h3 id='tymethod.swap' class='method stab '><span id='swap.v' class='invisible'><code>fn <a href='#tymethod.swap' class='fnname'>swap</a>(&amp;mut self, i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, j: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span></code></span></h3><div class='docblock'><p>Swaps the items at the given indices in the list.</p>
+
+<h1 id='panics' class='section-header'><a href='#panics'>Panics</a></h1>
+<p>Panics if <code>i &gt;= self.len() || j &gt;= self.len()</code>.</p>
+</div><h3 id='tymethod.insert' class='method stab '><span id='insert.v' class='invisible'><code>fn <a href='#tymethod.insert' class='fnname'>insert</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, item: Self::Item) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Inserts the given item into the list at the given index.</p>
+
+<p>All items after the given index are shifted one index to the right.</p>
+
+<h1 id='panics-1' class='section-header'><a href='#panics-1'>Panics</a></h1>
+<p>Panics if <code>index &gt; self.len()</code>.</p>
+</div><h3 id='tymethod.remove' class='method stab '><span id='remove.v' class='invisible'><code>fn <a href='#tymethod.remove' class='fnname'>remove</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Removes the item at the given index in the list and returns it.</p>
+
+<p>Returns <code>None</code> if <code>index &gt;= self.len()</code>.</p>
+
+<p>All items after the given index are shifted one index to the left.</p>
+</div><h3 id='tymethod.swap_remove' class='method stab '><span id='swap_remove.v' class='invisible'><code>fn <a href='#tymethod.swap_remove' class='fnname'>swap_remove</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Removes the item at the given index in the list and returns it, replacing it with the last
+item in the list.</p>
+
+<p>Returns <code>None</code> if <code>index &gt;= self.len()</code>.</p>
+</div></div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.reverse' class='method stab '><span id='reverse.v' class='invisible'><code>fn <a href='#method.reverse' class='fnname'>reverse</a>(&amp;mut self) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span></code></span></h3><div class='docblock'><p>Reverses the order of the items in the list.</p>
+</div><h3 id='method.first' class='method stab '><span id='first.v' class='invisible'><code>fn <a href='#method.first' class='fnname'>first</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;Self::Item&gt;</code></span></h3><div class='docblock'><p>Returns a reference to the first item in the list.</p>
+
+<p>Returns <code>None</code> if the list is empty.</p>
+</div><h3 id='method.first_mut' class='method stab '><span id='first_mut.v' class='invisible'><code>fn <a href='#method.first_mut' class='fnname'>first_mut</a>(&amp;mut self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span></code></span></h3><div class='docblock'><p>Returns a mutable reference to the first item in the list.</p>
+
+<p>Returns <code>None</code> if the list is empty.</p>
+</div><h3 id='method.last' class='method stab '><span id='last.v' class='invisible'><code>fn <a href='#method.last' class='fnname'>last</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;Self::Item&gt;</code></span></h3><div class='docblock'><p>Returns a reference to the last item in the list.</p>
+
+<p>Returns <code>None</code> if the list is empty.</p>
+</div><h3 id='method.last_mut' class='method stab '><span id='last_mut.v' class='invisible'><code>fn <a href='#method.last_mut' class='fnname'>last_mut</a>(&amp;mut self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;mut Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.Mutate.html' title='eclectic::Mutate'>Mutate</a></span></code></span></h3><div class='docblock'><p>Returns a mutable reference to the last item in the list.</p>
+
+<p>Returns <code>None</code> if the list is empty.</p>
+</div><h3 id='method.push' class='method stab '><span id='push.v' class='invisible'><code>fn <a href='#method.push' class='fnname'>push</a>(&amp;mut self, item: Self::Item) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Pushes the given item onto the back of the list.</p>
+</div><h3 id='method.pop' class='method stab '><span id='pop.v' class='invisible'><code>fn <a href='#method.pop' class='fnname'>pop</a>(&amp;mut self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self::Item&gt; <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Removes the last item in the list and returns it.</p>
+
+<p>Returns <code>None</code> if the list was empty.</p>
+</div><h3 id='method.truncate' class='method stab '><span id='truncate.v' class='invisible'><code>fn <a href='#method.truncate' class='fnname'>truncate</a>(&amp;mut self, len: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) <span class='where'>where Self: <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Ensures that the list&#39;s length is no more than the given length by removing the
+corresponding number of items from the back.</p>
+
+<p>Does nothing if <code>len &gt;= self.len()</code>.</p>
+</div><h3 id='method.split_off' class='method stab '><span id='split_off.v' class='invisible'><code>fn <a href='#method.split_off' class='fnname'>split_off</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; Self <span class='where'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> + <a class='trait' href='../eclectic/trait.AddRemove.html' title='eclectic::AddRemove'>AddRemove</a></span></code></span></h3><div class='docblock'><p>Splits the list in two at the given index.</p>
+
+<p>Returns a new list that contains the items in the range <code>index..self.len()</code>.</p>
+
+<p>After this method returns, <code>self</code> contains the items in the range <code>0..index</code>. <code>self</code>&#39;s
+capacity should remain the same, when possible.</p>
+
+<h1 id='panics-2' class='section-header'><a href='#panics-2'>Panics</a></h1>
+<p>Panics if <code>index &gt; self.len()</code>.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;T&gt; List for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[</a>T<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a></code></li>
+<li><code>impl&lt;T&gt; List for <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;T&gt;</code></li>
+<li><code>impl&lt;T&gt; List for <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec_deque/struct.VecDeque.html' title='collections::vec_deque::VecDeque'>VecDeque</a>&lt;T&gt;</code></li>
+</ul><script type="text/javascript" async
+                         src="../implementors/eclectic/trait.List.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "eclectic";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    <script src="../extra.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
