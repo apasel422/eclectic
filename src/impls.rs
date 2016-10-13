@@ -248,7 +248,6 @@ impl<T: Ord> set::Base for BTreeSet<T> {
         self.insert(item)
     }
 
-    #[cfg(feature = "nightly")]
     fn replace(&mut self, item: T) -> Option<T> {
         self.replace(item)
     }
@@ -259,7 +258,6 @@ impl<T: Ord + Borrow<Q>, Q: ?Sized + Ord> Set<Q> for BTreeSet<T> {
         self.contains(item)
     }
 
-    #[cfg(feature = "nightly")]
     fn get(&self, item: &Q) -> Option<&T> {
         self.get(item)
     }
@@ -268,7 +266,6 @@ impl<T: Ord + Borrow<Q>, Q: ?Sized + Ord> Set<Q> for BTreeSet<T> {
         self.remove(item)
     }
 
-    #[cfg(feature = "nightly")]
     fn take(&mut self, item: &Q) -> Option<T> {
         self.take(item)
     }
@@ -529,7 +526,6 @@ impl<T: Eq + Hash> set::Base for HashSet<T> {
         self.insert(item)
     }
 
-    #[cfg(feature = "nightly")]
     fn replace(&mut self, item: T) -> Option<T> {
         self.replace(item)
     }
@@ -540,7 +536,6 @@ impl<T: Eq + Hash + Borrow<Q>, Q: ?Sized + Eq + Hash> Set<Q> for HashSet<T> {
         self.contains(item)
     }
 
-    #[cfg(feature = "nightly")]
     fn get(&self, item: &Q) -> Option<&T> {
         self.get(item)
     }
@@ -549,7 +544,6 @@ impl<T: Eq + Hash + Borrow<Q>, Q: ?Sized + Eq + Hash> Set<Q> for HashSet<T> {
         self.remove(item)
     }
 
-    #[cfg(feature = "nightly")]
     fn take(&mut self, item: &Q) -> Option<T> {
         self.take(item)
     }

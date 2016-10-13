@@ -90,7 +90,6 @@
 #![cfg_attr(feature = "nightly", feature(
     binary_heap_extras,
     deque_extras,
-    set_recovery,
 ))]
 
 mod impls;
@@ -585,7 +584,6 @@ pub mod set {
         ///
         /// Returns the item that was replaced, or `None` if the set did not contain an equivalent
         /// item.
-        #[cfg(feature = "nightly")]
         fn replace(&mut self, item: Self::Item) -> Option<Self::Item> where Self: AddRemove;
     }
 
@@ -598,11 +596,6 @@ pub mod set {
     /// items using a `str`. When omitted, `Q` defaults to `Self::Item`.
     pub trait Set<Q: ?Sized = <Self as Collection>::Item>: Base {
         /// Checks if the set contains an item that is equivalent to the given item.
-        #[cfg(not(feature = "nightly"))]
-        fn contains(&self, item: &Q) -> bool;
-
-        /// Checks if the set contains an item that is equivalent to the given item.
-        #[cfg(feature = "nightly")]
         fn contains(&self, item: &Q) -> bool {
             self.get(item).is_some()
         }
@@ -610,27 +603,18 @@ pub mod set {
         /// Returns a reference to the item in the set that is equivalent to the given item.
         ///
         /// Returns `None` if the set contains no such item.
-        #[cfg(feature = "nightly")]
         fn get(&self, item: &Q) -> Option<&Self::Item>;
 
         /// Removes the item in the set that is equivalent to the given item.
         ///
         /// Returns `true` if the set contained such an item, `false` otherwise.
-        #[cfg(feature = "nightly")]
         fn remove(&mut self, item: &Q) -> bool where Self: AddRemove {
             self.take(item).is_some()
         }
 
-        /// Removes the item in the set that is equivalent to the given item.
-        ///
-        /// Returns `true` if the set contained such an item, `false` otherwise.
-        #[cfg(not(feature = "nightly"))]
-        fn remove(&mut self, item: &Q) -> bool where Self: AddRemove;
-
         /// Removes the item in the set that is equivalent to the given item and returns it.
         ///
         /// Returns `None` if the set contained no such item.
-        #[cfg(feature = "nightly")]
         fn take(&mut self, item: &Q) -> Option<Self::Item> where Self: AddRemove;
     }
 }
