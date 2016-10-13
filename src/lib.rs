@@ -88,7 +88,6 @@
 
 #![deny(missing_docs)]
 #![cfg_attr(feature = "nightly", feature(
-    binary_heap_extras,
     deque_extras,
 ))]
 
@@ -650,6 +649,8 @@ pub trait FifoQueue: Queue {
 pub trait PrioQueue: Queue {
     /// Pushes the given item onto the queue, then removes the item at the front of the queue and
     /// returns it.
+    ///
+    /// This method may be deprecated in favor of `front_mut` in the future.
     fn push_pop_front(&mut self, item: Self::Item) -> Self::Item where Self: AddRemove {
         self.push(item);
         self.pop_front().expect("queue was empty after a `push`")
@@ -658,6 +659,8 @@ pub trait PrioQueue: Queue {
     /// Removes the item at the front of the queue, then pushes the given item onto the queue.
     ///
     /// Returns the item that was removed, or `None` if the queue was empty.
+    ///
+    /// This method may be deprecated in favor of `front_mut` in the future.
     fn replace_front(&mut self, item: Self::Item) -> Option<Self::Item> where Self: AddRemove {
         let front = self.pop_front();
         self.push(item);
@@ -693,6 +696,8 @@ pub trait FifoDeque: FifoQueue + Deque {
 pub trait PrioDeque: PrioQueue + Deque {
     /// Pushes the given item onto the deque, then removes the item at the back of the deque and
     /// returns it.
+    ///
+    /// This method may be deprecated in favor of `back_mut` in the future.
     fn push_pop_back(&mut self, item: Self::Item) -> Self::Item where Self: AddRemove {
         self.push(item);
         self.pop_back().expect("deque was empty after a `push`")
@@ -701,6 +706,8 @@ pub trait PrioDeque: PrioQueue + Deque {
     /// Removes the item at the back of the deque, then pushes the given item onto the deque.
     ///
     /// Returns the item that was removed, or `None` if the deque was empty.
+    ///
+    /// This method may be deprecated in favor of `back_mut` in the future.
     fn replace_back(&mut self, item: Self::Item) -> Option<Self::Item> where Self: AddRemove {
         let back = self.pop_back();
         self.push(item);

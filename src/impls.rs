@@ -342,14 +342,20 @@ impl<T: Ord> Queue for BinaryHeap<T> {
 }
 
 impl<T: Ord> PrioQueue for BinaryHeap<T> {
-    #[cfg(feature = "nightly")]
     fn push_pop_front(&mut self, item: T) -> T {
-        self.push_pop(item)
+        match self.peek_mut() {
+            Some(ref mut old) if item < **old => mem::replace(&mut *old, item),
+            _ => item,
+        }
     }
 
-    #[cfg(feature = "nightly")]
     fn replace_front(&mut self, item: T) -> Option<T> {
-        self.replace(item)
+        if let Some(mut old) = self.peek_mut() {
+            return Some(mem::replace(&mut *old, item));
+        };
+
+        self.push(item);
+        None
     }
 }
 
@@ -912,4 +918,27 @@ impl<T> FifoDeque for VecDeque<T> {
     fn back_mut(&mut self) -> Option<&mut T> {
         self.back_mut()
     }
+}
+
+#[test]
+fn test_binary_heap_push_pop_front() {
+    let mut h = BinaryHeap::new();
+    assert_eq!(h.push_pop_front(5), 5);
+    assert!(h.is_empty());
+    h.push(4);
+    assert_eq!(h.push_pop_front(5), 5);
+    assert!(h.iter().eq(&[4]));
+    assert_eq!(h.push_pop_front(3), 4);
+    assert!(h.iter().eq(&[3]));
+}
+
+#[test]
+fn test_binary_heap_replace_front() {
+    let mut h = BinaryHeap::new();
+    assert_eq!(h.replace_front(5), None);
+    assert!(h.iter().eq(&[5]));
+    assert_eq!(h.replace_front(4), Some(5));
+    assert!(h.iter().eq(&[4]));
+    assert_eq!(h.replace_front(6), Some(4));
+    assert!(h.iter().eq(&[6]));
 }
