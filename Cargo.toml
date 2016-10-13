@@ -8,6 +8,10 @@ repository = "https://github.com/apasel422/eclectic"
 documentation = "https://apasel422.github.io/eclectic/eclectic"
 keywords = ["collecton", "map", "set", "data-structure"]
 description = "Experimental collection traits."
+exclude = [
+    ".travis.yml",
+    "deploy-docs.sh",
+]
 
 [features]
 nightly = []
