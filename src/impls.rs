@@ -758,7 +758,6 @@ impl<T> List for Vec<T> {
         }
     }
 
-    #[cfg(feature = "nightly")]
     fn truncate(&mut self, len: usize) {
         self.truncate(len);
     }
@@ -870,7 +869,6 @@ impl<T> List for VecDeque<T> {
         self.swap_remove_back(index)
     }
 
-    #[cfg(feature = "nightly")]
     fn truncate(&mut self, len: usize) {
         self.truncate(len);
     }

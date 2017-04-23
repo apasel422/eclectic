@@ -87,9 +87,6 @@
 //! them.
 
 #![deny(missing_docs)]
-#![cfg_attr(feature = "nightly", feature(
-    deque_extras,
-))]
 
 mod impls;
 
